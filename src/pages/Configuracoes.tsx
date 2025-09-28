@@ -4,7 +4,28 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings, Bell, Shield, Globe, Palette, Database } from 'lucide-react';
+import { Settings, Bell, Shield, Globe, Palette, Database, Users, Crown, UserCog } from 'lucide-react';
+
+// Mock data para usuários
+const mockUsers = [
+  { id: 1, name: 'Ana Silva', email: 'ana@empresa.com', role: 'vendedor' },
+  { id: 2, name: 'Carlos Santos', email: 'carlos@empresa.com', role: 'vendedor' },
+  { id: 3, name: 'Maria Costa', email: 'maria@empresa.com', role: 'administrador' },
+  { id: 4, name: 'João Oliveira', email: 'joao@empresa.com', role: 'vendedor' },
+  { id: 5, name: 'Admin Master', email: 'admin@empresa.com', role: 'master' },
+];
+
+const roleLabels = {
+  master: 'Master',
+  administrador: 'Administrador', 
+  vendedor: 'Vendedor'
+};
+
+const roleIcons = {
+  master: Crown,
+  administrador: UserCog,
+  vendedor: Users
+};
 
 export default function Configuracoes() {
   return (
@@ -22,6 +43,98 @@ export default function Configuracoes() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Gerenciamento de Usuários */}
+        <Card className="lg:col-span-2 p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <Users className="w-4 h-4 text-white" />
+              </div>
+              <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Usuários</h2>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <p className="text-muted-foreground">Gerencie as permissões dos usuários do sistema</p>
+                <Button className="bg-gradient-primary text-white shadow-glow">
+                  <Users className="w-4 h-4 mr-2" />
+                  Adicionar Usuário
+                </Button>
+              </div>
+              
+              <div className="space-y-3">
+                {mockUsers.map((user) => {
+                  const RoleIcon = roleIcons[user.role as keyof typeof roleIcons];
+                  return (
+                    <div key={user.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
+                          <RoleIcon className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">{user.name}</p>
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-3">
+                        <Select defaultValue={user.role}>
+                          <SelectTrigger className="w-40">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="master">
+                              <div className="flex items-center space-x-2">
+                                <Crown className="w-4 h-4" />
+                                <span>Master</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="administrador">
+                              <div className="flex items-center space-x-2">
+                                <UserCog className="w-4 h-4" />
+                                <span>Administrador</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="vendedor">
+                              <div className="flex items-center space-x-2">
+                                <Users className="w-4 h-4" />
+                                <span>Vendedor</span>
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        
+                        <Button variant="outline" size="sm">
+                          Editar
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              
+              <div className="pt-4 border-t border-border">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-primary/5 rounded-lg">
+                    <Crown className="w-6 h-6 mx-auto mb-2 text-primary" />
+                    <p className="font-medium text-primary">Master</p>
+                    <p className="text-xs text-muted-foreground">Acesso total ao sistema</p>
+                  </div>
+                  <div className="text-center p-4 bg-success/5 rounded-lg">
+                    <UserCog className="w-6 h-6 mx-auto mb-2 text-success" />
+                    <p className="font-medium text-success">Administrador</p>
+                    <p className="text-xs text-muted-foreground">Gerencia vendedores</p>
+                  </div>
+                  <div className="text-center p-4 bg-muted/50 rounded-lg">
+                    <Users className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                    <p className="font-medium">Vendedor</p>
+                    <p className="text-xs text-muted-foreground">Acesso básico</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
         {/* Notificações */}
         <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
           <div className="space-y-6">

@@ -19,9 +19,7 @@ export function Layout({ children }: LayoutProps) {
             <SidebarTrigger />
             
             <div className="flex items-center space-x-4">
-              <div className="text-sm text-muted-foreground">
-                Sistema de Comissões
-              </div>
+              {/* Header space - could add user menu or notifications here */}
             </div>
           </header>
           

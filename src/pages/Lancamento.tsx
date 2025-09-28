@@ -58,6 +58,14 @@ export default function Lancamento() {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="pedido">Número do Pedido (Opcional)</Label>
+                <Input 
+                  id="pedido"
+                  placeholder="Ex: PED-2024-001"
+                />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="cliente">Cliente</Label>
                 <Input 
                   id="cliente"
