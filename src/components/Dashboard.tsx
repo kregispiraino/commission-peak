@@ -215,6 +215,27 @@ export function Dashboard() {
                 </div>
               </div>
             </Card>
+
+            {/* Prize card */}
+            <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
+              <div className="text-center space-y-4">
+                <div className="w-12 h-12 bg-gradient-warning rounded-full flex items-center justify-center mx-auto shadow-glow">
+                  <TrendingUp className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground mb-2">Premiação</h3>
+                  <p className="text-lg font-bold text-primary mb-2">
+                    iPhone 17 Pro Max
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    <span className="font-medium text-foreground">Carlos Silva</span> está liderando e próximo do prêmio!
+                  </p>
+                  <Badge className="bg-warning/10 text-warning border-warning/20">
+                    🏆 1º Lugar
+                  </Badge>
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
       </div>
