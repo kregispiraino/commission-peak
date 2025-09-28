@@ -71,7 +71,7 @@ export function AppSidebar() {
             <SidebarMenu className="space-y-1">
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="rounded-lg">
+                  <SidebarMenuButton asChild>
                     <NavLink 
                       to={item.url} 
                       end 
@@ -80,9 +80,9 @@ export function AppSidebar() {
                       }
                     >
                       <item.icon className="w-5 h-5 flex-shrink-0" />
-                      {!isCollapsed && (
-                        <span className="font-medium">{item.title}</span>
-                      )}
+                      <span className={`font-medium ${isCollapsed ? 'sr-only' : ''}`}>
+                        {item.title}
+                      </span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -95,7 +95,9 @@ export function AppSidebar() {
         <div className="mt-auto p-3 border-t border-glass-border">
           <SidebarMenuButton className="w-full rounded-lg text-destructive hover:bg-destructive/10 hover:text-destructive">
             <LogOut className="w-5 h-5" />
-            {!isCollapsed && <span className="font-medium">Sair</span>}
+            <span className={`font-medium ${isCollapsed ? 'sr-only' : ''}`}>
+              Sair
+            </span>
           </SidebarMenuButton>
         </div>
       </SidebarContent>
