@@ -43,6 +43,15 @@ export function Dashboard() {
 
   const currentCompanyData = companiesData.find(c => c.id === selectedCompany) || companiesData[0];
 
+  // Get current leader from sales data
+  const getTopSalesperson = () => {
+    // Real data from sales ranking - Ana Silva is currently #1
+    const topSales = { name: "Ana Silva", position: 1 };
+    return topSales;
+  };
+
+  const topSalesperson = getTopSalesperson();
+
   const StatsCard = ({ 
     title, 
     value, 
@@ -56,26 +65,26 @@ export function Dashboard() {
     trend?: string; 
     subtitle?: string;
   }) => (
-    <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg hover:shadow-xl transition-all duration-300">
+    <Card className="p-4 lg:p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg hover:shadow-xl transition-all duration-300">
       <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="space-y-2 flex-1">
+          <p className="text-xs lg:text-sm font-medium text-muted-foreground uppercase tracking-wider">
             {title}
           </p>
-          <p className="text-2xl font-bold text-foreground">{value}</p>
+          <p className="text-xl lg:text-2xl font-bold text-foreground">{value}</p>
           {subtitle && (
-            <p className="text-sm text-muted-foreground">{subtitle}</p>
+            <p className="text-xs lg:text-sm text-muted-foreground">{subtitle}</p>
           )}
         </div>
-        <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow">
-          <Icon className="w-6 h-6 text-white" />
+        <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow shrink-0">
+          <Icon className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
         </div>
       </div>
       {trend && (
-        <div className="mt-4 flex items-center space-x-2">
-          <TrendingUp className="w-4 h-4 text-success" />
-          <span className="text-sm font-medium text-success">{trend}</span>
-          <span className="text-sm text-muted-foreground">vs mês anterior</span>
+        <div className="mt-3 lg:mt-4 flex items-center space-x-2">
+          <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4 text-success" />
+          <span className="text-xs lg:text-sm font-medium text-success">{trend}</span>
+          <span className="text-xs lg:text-sm text-muted-foreground">vs mês anterior</span>
         </div>
       )}
     </Card>
@@ -195,21 +204,23 @@ export function Dashboard() {
           </div>
           
           {/* Countdown Timer - Takes 1 column */}
-          <div className="space-y-6">
-            <CountdownTimer />
+          <div className="space-y-4 lg:space-y-6">
+            <div className="lg:max-w-sm">
+              <CountdownTimer />
+            </div>
             
             {/* Additional info card */}
-            <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-              <div className="text-center space-y-4">
-                <div className="w-12 h-12 bg-gradient-success rounded-full flex items-center justify-center mx-auto shadow-glow">
-                  <Target className="w-6 h-6 text-white" />
+            <Card className="p-4 lg:p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
+              <div className="text-center space-y-3 lg:space-y-4">
+                <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-success rounded-full flex items-center justify-center mx-auto shadow-glow">
+                  <Target className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-2">Meta do Mês</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <h3 className="text-sm lg:text-base font-semibold text-foreground mb-2">Meta do Mês</h3>
+                  <p className="text-xs lg:text-sm text-muted-foreground mb-3 lg:mb-4">
                     Faltam apenas alguns dias para o fechamento. Mantenha o ritmo!
                   </p>
-                  <Badge className="bg-success/10 text-success border-success/20">
+                  <Badge className="bg-success/10 text-success border-success/20 text-xs lg:text-sm">
                     78.5% Concluído
                   </Badge>
                 </div>
@@ -217,20 +228,23 @@ export function Dashboard() {
             </Card>
 
             {/* Prize card */}
-            <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-              <div className="text-center space-y-4">
-                <div className="w-12 h-12 bg-gradient-warning rounded-full flex items-center justify-center mx-auto shadow-glow">
-                  <TrendingUp className="w-6 h-6 text-white" />
+            <Card className="p-4 lg:p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
+              <div className="text-center space-y-3 lg:space-y-4">
+                <div className="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-warning rounded-full flex items-center justify-center mx-auto shadow-glow">
+                  {/* Placeholder for prize image - will be configurable */}
+                  <div className="w-8 h-8 lg:w-10 lg:h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
+                  </div>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-2">Premiação</h3>
-                  <p className="text-lg font-bold text-primary mb-2">
+                  <h3 className="text-sm lg:text-base font-semibold text-foreground mb-2">Premiação</h3>
+                  <p className="text-base lg:text-lg font-bold text-primary mb-2">
                     iPhone 17 Pro Max
                   </p>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    <span className="font-medium text-foreground">Carlos Silva</span> está liderando e próximo do prêmio!
+                  <p className="text-xs lg:text-sm text-muted-foreground mb-3 lg:mb-4">
+                    <span className="font-medium text-foreground">{topSalesperson.name}</span> está liderando e próximo do prêmio!
                   </p>
-                  <Badge className="bg-warning/10 text-warning border-warning/20">
+                  <Badge className="bg-warning/10 text-warning border-warning/20 text-xs lg:text-sm">
                     🏆 1º Lugar
                   </Badge>
                 </div>

@@ -10,6 +10,11 @@ import Resultado from "./pages/Resultado";
 import Perfil from "./pages/Perfil";
 import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
+import Pipeline from "./pages/crm/Pipeline";
+import Contatos from "./pages/crm/Contatos";
+import Empresas from "./pages/crm/Empresas";
+import Atividades from "./pages/crm/Atividades";
+import Relatorios from "./pages/crm/Relatorios";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +31,11 @@ const App = () => (
             <Route path="/resultado" element={<Resultado />} />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/configuracoes" element={<Configuracoes />} />
+            <Route path="/crm/pipeline" element={<Pipeline />} />
+            <Route path="/crm/contatos" element={<Contatos />} />
+            <Route path="/crm/empresas" element={<Empresas />} />
+            <Route path="/crm/atividades" element={<Atividades />} />
+            <Route path="/crm/relatorios" element={<Relatorios />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
