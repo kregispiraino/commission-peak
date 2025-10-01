@@ -219,16 +219,17 @@ export function Dashboard() {
             {/* Prize card */}
             <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
               <div className="text-center space-y-4">
-                <div className="w-12 h-12 bg-gradient-warning rounded-full flex items-center justify-center mx-auto shadow-glow">
-                  <TrendingUp className="w-6 h-6 text-white" />
+                <div className="w-16 h-16 bg-gradient-warning rounded-full flex items-center justify-center mx-auto shadow-glow">
+                  {/* Prize image will be uploaded by admin */}
+                  <TrendingUp className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-2">Premiação</h3>
+                  <h3 className="font-semibold text-foreground mb-2">Premiação do Mês</h3>
                   <p className="text-lg font-bold text-primary mb-2">
                     iPhone 17 Pro Max
                   </p>
                   <p className="text-sm text-muted-foreground mb-4">
-                    <span className="font-medium text-foreground">Carlos Silva</span> está liderando e próximo do prêmio!
+                    <span className="font-medium text-foreground">Ana Silva</span> está liderando e próxima do prêmio!
                   </p>
                   <Badge className="bg-warning/10 text-warning border-warning/20">
                     🏆 1º Lugar

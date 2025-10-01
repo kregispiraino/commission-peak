@@ -97,59 +97,70 @@ export default function Lancamento() {
           </div>
         </Card>
 
-        {/* Resumo rápido */}
-        <div className="space-y-6">
-          <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Vendas Hoje</h3>
+        {/* Aprovações pendentes */}
+        <Card className="lg:col-span-2 p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl">
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-foreground">Liberações de Lançamentos</h2>
+            <p className="text-muted-foreground text-sm">
+              Aprovar ou negar lançamentos pendentes dos vendedores
+            </p>
+            
             <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Total</span>
-                <span className="font-semibold text-success">R$ 15.000</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Quantidade</span>
-                <span className="font-semibold">3 vendas</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Ticket Médio</span>
-                <span className="font-semibold">R$ 5.000</span>
-              </div>
+              {/* Mock pending approvals */}
+              {[
+                { id: 1, seller: 'Ana Silva', value: 'R$ 8.500', client: 'Tech Corp', date: '2024-01-15', product: 'Software License' },
+                { id: 2, seller: 'João Oliveira', value: 'R$ 3.200', client: 'Digital Solutions', date: '2024-01-15', product: 'Consultoria' },
+                { id: 3, seller: 'Luiza Ferreira', value: 'R$ 12.800', client: 'InnovaWeb', date: '2024-01-14', product: 'Desenvolvimento Web' },
+              ].map((approval) => (
+                <div 
+                  key={approval.id}
+                  className="flex items-center justify-between p-4 bg-card rounded-lg border border-border hover:shadow-md transition-all"
+                >
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">{approval.seller}</p>
+                        <p className="text-sm text-muted-foreground">{approval.client}</p>
+                      </div>
+                    </div>
+                    <div className="ml-10 grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Valor:</span>
+                        <span className="ml-2 font-semibold text-success">{approval.value}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Produto:</span>
+                        <span className="ml-2 font-medium">{approval.product}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Data:</span>
+                        <span className="ml-2 font-medium">{approval.date}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 ml-4">
+                    <Button size="sm" className="bg-gradient-success text-white shadow-glow">
+                      Aprovar
+                    </Button>
+                    <Button size="sm" variant="outline" className="text-destructive border-destructive/20 hover:bg-destructive/10">
+                      Negar
+                    </Button>
+                  </div>
+                </div>
+              ))}
+              
+              {/* Empty state */}
+              {false && (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Nenhuma liberação pendente no momento</p>
+                </div>
+              )}
             </div>
-          </Card>
-
-          <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Top Vendedores Hoje</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="font-medium">Ana Silva</span>
-                </div>
-                <span className="text-success font-semibold">R$ 8.000</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                  <span className="font-medium">Carlos Santos</span>
-                </div>
-                <span className="text-success font-semibold">R$ 4.500</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                  <span className="font-medium">Maria Costa</span>
-                </div>
-                <span className="text-success font-semibold">R$ 2.500</span>
-              </div>
-            </div>
-          </Card>
-        </div>
+          </div>
+        </Card>
       </div>
     </div>
   );

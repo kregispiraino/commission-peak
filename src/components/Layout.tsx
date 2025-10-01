@@ -16,7 +16,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="flex-1 flex flex-col">
           {/* Header with toggle */}
           <header className="h-16 flex items-center justify-between px-6 bg-gradient-glass border-b border-glass-border backdrop-blur-xl">
-            <SidebarTrigger />
+            <SidebarTrigger className="text-primary hover:text-primary-glow" />
             
             <div className="flex items-center space-x-4">
               {/* Header space - could add user menu or notifications here */}

@@ -4,12 +4,12 @@ import {
   Home, 
   PlusCircle, 
   BarChart3, 
-  User, 
   Settings, 
   LogOut,
-  Trophy,
-  Menu
+  Users,
+  SlidersHorizontal
 } from "lucide-react";
+import ascoraIcon from "@/assets/ascora-icon.png";
 
 import {
   Sidebar,
@@ -24,12 +24,22 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const navigationItems = [
-  { title: "Home", url: "/", icon: Home },
-  { title: "Lançamento", url: "/lancamento", icon: PlusCircle },
-  { title: "Resultado", url: "/resultado", icon: BarChart3 },
-  { title: "Meu Perfil", url: "/perfil", icon: User },
-  { title: "Configurações", url: "/configuracoes", icon: Settings },
+const menuSections = [
+  {
+    label: "Menu Principal",
+    items: [
+      { title: "Home", url: "/", icon: Home },
+      { title: "Lançamento", url: "/lancamento", icon: PlusCircle },
+      { title: "Comissões", url: "/comissoes", icon: BarChart3 },
+    ]
+  },
+  {
+    label: "Configurações",
+    items: [
+      { title: "Geral", url: "/geral", icon: SlidersHorizontal },
+      { title: "Cadastros", url: "/cadastros", icon: Users },
+    ]
+  }
 ];
 
 export function AppSidebar() {
@@ -50,46 +60,46 @@ export function AppSidebar() {
         {/* Header with logo */}
         <div className="p-6 border-b border-glass-border">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center shadow-glow">
-              <Trophy className="w-4 h-4 text-white" />
-            </div>
+            <img src={ascoraIcon} alt="Ascora" className="w-8 h-8" />
             {!isCollapsed && (
               <div>
-                <h2 className="font-semibold text-foreground">Sales Rank</h2>
-                <p className="text-xs text-muted-foreground">Comissões Pro</p>
+                <h2 className="font-semibold text-foreground">Ascora</h2>
+                <p className="text-xs text-muted-foreground">CRM & Resultados</p>
               </div>
             )}
           </div>
         </div>
 
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-3">
-            {!isCollapsed && "Menu Principal"}
-          </SidebarGroupLabel>
-          
-          <SidebarGroupContent className="px-3">
-            <SidebarMenu className="space-y-1">
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      end 
-                      className={({ isActive }) => 
-                        `flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 ${getNavClasses({ isActive })}`
-                      }
-                    >
-                      <item.icon className="w-5 h-5 flex-shrink-0" />
-                      <span className={`font-medium ${isCollapsed ? 'sr-only' : ''}`}>
-                        {item.title}
-                      </span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {menuSections.map((section, idx) => (
+          <SidebarGroup key={idx}>
+            <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-3">
+              {!isCollapsed && section.label}
+            </SidebarGroupLabel>
+            
+            <SidebarGroupContent className="px-3">
+              <SidebarMenu className="space-y-1">
+                {section.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.url} 
+                        end 
+                        className={({ isActive }) => 
+                          `flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 ${getNavClasses({ isActive })}`
+                        }
+                      >
+                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                        <span className={`font-medium ${isCollapsed ? 'sr-only' : ''}`}>
+                          {item.title}
+                        </span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
 
         {/* Logout button at bottom */}
         <div className="mt-auto p-3 border-t border-glass-border">

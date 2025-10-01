@@ -75,6 +75,7 @@ export default {
       backgroundImage: {
         'gradient-primary': 'var(--gradient-primary)',
         'gradient-success': 'var(--gradient-success)',
+        'gradient-warning': 'var(--gradient-warning)',
         'gradient-glass': 'var(--gradient-glass)',
         'gradient-backdrop': 'var(--gradient-backdrop)',
       },
