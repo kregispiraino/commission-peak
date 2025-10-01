@@ -130,15 +130,6 @@ export function SalesRanking() {
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="text-right space-y-1">
-                    <div className="font-semibold text-success">
-                      {formatCurrency(person.commission)}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Comissão
-                    </div>
-                  </div>
                 </div>
                 
                 <div className="mt-4 space-y-2">

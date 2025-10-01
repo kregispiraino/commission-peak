@@ -7,7 +7,10 @@ import {
   Settings, 
   LogOut,
   Users,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Code,
+  BookOpen,
+  HeadphonesIcon
 } from "lucide-react";
 import ascoraIcon from "@/assets/ascora-icon.png";
 
@@ -38,6 +41,14 @@ const menuSections = [
     items: [
       { title: "Geral", url: "/geral", icon: SlidersHorizontal },
       { title: "Cadastros", url: "/cadastros", icon: Users },
+      { title: "Desenvolvedor", url: "/desenvolvedor", icon: Code },
+    ]
+  },
+  {
+    label: "Ajuda",
+    items: [
+      { title: "Manuais", url: "/manuais", icon: BookOpen },
+      { title: "Suporte", url: "/suporte", icon: HeadphonesIcon },
     ]
   }
 ];

@@ -117,67 +117,56 @@ export function Dashboard() {
             </div>
             
             {/* Chart visualization */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Vendas por Empresa</h3>
               <div className="space-y-4">
-                <h3 className="font-medium text-muted-foreground">Vendas por Empresa</h3>
-                <div className="space-y-3">
-                  {chartData.map((item) => (
-                    <div key={item.company} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div 
-                          className="w-4 h-4 rounded-full" 
-                          style={{ backgroundColor: item.color }}
-                        />
-                        <span className="font-medium">{item.company}</span>
+                {chartData.map((item, index) => {
+                  const totalSales = chartData.reduce((acc, curr) => acc + curr.sales, 0);
+                  const percentage = (item.sales / totalSales) * 100;
+                  
+                  return (
+                    <div key={item.company} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div 
+                            className="w-3 h-3 rounded-full shadow-sm" 
+                            style={{ backgroundColor: item.color }}
+                          />
+                          <span className="font-semibold text-foreground">{item.company}</span>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <span className="text-sm font-medium text-muted-foreground">
+                            {percentage.toFixed(1)}%
+                          </span>
+                          <span className="font-bold text-success min-w-[120px] text-right">
+                            {formatCurrency(item.sales)}
+                          </span>
+                        </div>
                       </div>
-                      <span className="font-semibold text-success">
-                        {formatCurrency(item.sales)}
-                      </span>
+                      <div className="relative h-3 bg-muted/30 rounded-full overflow-hidden">
+                        <div 
+                          className="absolute h-full rounded-full transition-all duration-500 shadow-sm"
+                          style={{ 
+                            width: `${percentage}%`,
+                            backgroundColor: item.color 
+                          }}
+                        />
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <h3 className="font-medium text-muted-foreground">Resumo Geral</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span>Total de Empresas:</span>
-                    <span className="font-semibold">3</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Vendas Totais:</span>
-                    <span className="font-semibold text-success">{formatCurrency(445000)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Vendedores Ativos:</span>
-                    <span className="font-semibold">6</span>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
             </div>
           </Card>
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <StatsCard
             title="Vendas Totais"
             value={formatCurrency(currentCompanyData.sales)}
             icon={DollarSign}
             trend="+12.5%"
-          />
-          <StatsCard
-            title="Vendedores Ativos"
-            value={currentCompanyData.sellers.toString()}
-            icon={Users}
-            subtitle="Equipe completa"
-          />
-          <StatsCard
-            title="Comissão Média"
-            value={formatCurrency(dashboardStats.averageCommission)}
-            icon={Target}
-            trend="+8.2%"
           />
           <StatsCard
             title="Progresso do Mês"
@@ -198,24 +187,6 @@ export function Dashboard() {
           <div className="space-y-6">
             <CountdownTimer />
             
-            {/* Additional info card */}
-            <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-              <div className="text-center space-y-4">
-                <div className="w-12 h-12 bg-gradient-success rounded-full flex items-center justify-center mx-auto shadow-glow">
-                  <Target className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground mb-2">Meta do Mês</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Faltam apenas alguns dias para o fechamento. Mantenha o ritmo!
-                  </p>
-                  <Badge className="bg-success/10 text-success border-success/20">
-                    78.5% Concluído
-                  </Badge>
-                </div>
-              </div>
-            </Card>
-
             {/* Prize card */}
             <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
               <div className="text-center space-y-4">
