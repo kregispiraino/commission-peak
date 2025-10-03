@@ -58,26 +58,23 @@ export function Dashboard() {
   }) => (
     <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg hover:shadow-xl transition-all duration-300">
       <div className="flex items-center justify-between">
-        <div className="space-y-2">
+        <div className="space-y-2 flex-1">
           <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
             {title}
           </p>
           <p className="text-2xl font-bold text-foreground">{value}</p>
-          {subtitle && (
-            <p className="text-sm text-muted-foreground">{subtitle}</p>
+          {trend && (
+            <div className="flex items-center space-x-2">
+              <TrendingUp className="w-4 h-4 text-success" />
+              <span className="text-sm font-medium text-success">{trend}</span>
+              <span className="text-sm text-muted-foreground">vs mês anterior</span>
+            </div>
           )}
         </div>
-        <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow">
-          <Icon className="w-6 h-6 text-white" />
+        <div className="w-16 h-16 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow flex-shrink-0 ml-4">
+          <Icon className="w-8 h-8 text-white" />
         </div>
       </div>
-      {trend && (
-        <div className="mt-4 flex items-center space-x-2">
-          <TrendingUp className="w-4 h-4 text-success" />
-          <span className="text-sm font-medium text-success">{trend}</span>
-          <span className="text-sm text-muted-foreground">vs mês anterior</span>
-        </div>
-      )}
     </Card>
   );
 
@@ -169,10 +166,10 @@ export function Dashboard() {
             trend="+12.5%"
           />
           <StatsCard
-            title="Progresso do Mês"
+            title="Progresso"
             value={`${dashboardStats.monthProgress}%`}
             icon={TrendingUp}
-            subtitle="Meta mensal"
+            trend="+8.3%"
           />
         </div>
 

@@ -35,42 +35,42 @@ export function CountdownTimer() {
   }, []);
 
     const TimeUnit = ({ value, label }: { value: number; label: string }) => (
-    <div className="flex flex-col items-center space-y-2">
-      <div className="w-20 h-20 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-glow relative overflow-hidden">
+    <div className="flex flex-col items-center space-y-1">
+      <div className="w-14 h-14 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow relative overflow-hidden">
         <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-        <span className="text-2xl font-bold text-white relative z-10">
+        <span className="text-xl font-bold text-white relative z-10">
           {value.toString().padStart(2, '0')}
         </span>
       </div>
-      <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
         {label}
       </span>
     </div>
   );
 
   return (
-    <Card className="p-8 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl">
-      <div className="text-center space-y-6">
-        <div className="flex items-center justify-center gap-2 mb-6">
+    <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl">
+      <div className="text-center space-y-4">
+        <div className="flex items-center justify-center gap-2 mb-4">
           <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
             <Calendar className="w-4 h-4 text-white" />
           </div>
-          <h3 className="text-xl font-semibold text-foreground">
+          <h3 className="text-lg font-semibold text-foreground">
             Fechamento do Mês
           </h3>
         </div>
         
-        <div className="flex justify-center items-center gap-6">
+        <div className="flex justify-center items-center gap-3">
           <TimeUnit value={timeLeft.days} label="Dias" />
-          <div className="text-2xl font-bold text-primary">:</div>
+          <div className="text-xl font-bold text-primary">:</div>
           <TimeUnit value={timeLeft.hours} label="Horas" />
-          <div className="text-2xl font-bold text-primary">:</div>
+          <div className="text-xl font-bold text-primary">:</div>
           <TimeUnit value={timeLeft.minutes} label="Min" />
-          <div className="text-2xl font-bold text-primary">:</div>
+          <div className="text-xl font-bold text-primary">:</div>
           <TimeUnit value={timeLeft.seconds} label="Seg" />
         </div>
 
-        <div className="mt-6 p-4 bg-primary/5 rounded-xl border border-primary/10">
+        <div className="mt-4 p-3 bg-primary/5 rounded-xl border border-primary/10">
           <div className="flex items-center justify-center gap-2 text-primary">
             <Clock className="w-4 h-4" />
             <span className="text-sm font-medium">

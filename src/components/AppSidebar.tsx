@@ -75,7 +75,7 @@ export function AppSidebar() {
             {!isCollapsed && (
               <div>
                 <h2 className="font-semibold text-foreground">Ascora</h2>
-                <p className="text-xs text-muted-foreground">CRM & Resultados</p>
+                <p className="text-xs text-muted-foreground">Comissões Pro</p>
               </div>
             )}
           </div>
