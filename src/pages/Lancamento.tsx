@@ -1,11 +1,29 @@
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, DollarSign, User, Calendar } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { PlusCircle, DollarSign, User, Calendar as CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+
+// Mock data
+const mockClientes = [
+  'Tech Corp', 'Digital Solutions', 'InnovaWeb', 'Smart Systems', 'Cloud Services',
+  'Data Analytics', 'Web Masters', 'Mobile First', 'Cyber Security', 'AI Labs'
+];
+
+const mockProdutos = [
+  'Software License', 'Consultoria', 'Desenvolvimento Web', 'Suporte Técnico',
+  'Treinamento', 'Hospedagem', 'Design Gráfico', 'Marketing Digital', 'SEO', 'Analytics'
+];
 
 export default function Lancamento() {
+  const [date, setDate] = useState<Date>(new Date());
+
   return (
     <div className="p-8 space-y-8">
       <div className="space-y-2">
@@ -58,7 +76,7 @@ export default function Lancamento() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="pedido">Número do Pedido (Opcional)</Label>
+                <Label htmlFor="pedido">Número do Pedido</Label>
                 <Input 
                   id="pedido"
                   placeholder="Ex: PED-2024-001"
@@ -66,27 +84,62 @@ export default function Lancamento() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="cliente">Cliente</Label>
-                <Input 
-                  id="cliente"
-                  placeholder="Nome do cliente"
-                />
+                <Label htmlFor="data">Data da Venda</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date ? format(date, "dd/MM/yyyy") : <span>Selecione a data</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={(newDate) => newDate && setDate(newDate)}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="data">Data da Venda</Label>
-                <Input 
-                  id="data"
-                  type="date"
-                />
+                <Label htmlFor="cliente">Cliente</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione ou busque o cliente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockClientes.map((cliente) => (
+                      <SelectItem key={cliente} value={cliente.toLowerCase()}>
+                        {cliente}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="produto">Produto/Serviço</Label>
-                <Input 
-                  id="produto"
-                  placeholder="Descrição do produto ou serviço"
-                />
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione ou busque o produto" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockProdutos.map((produto) => (
+                      <SelectItem key={produto} value={produto.toLowerCase()}>
+                        {produto}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -98,7 +151,7 @@ export default function Lancamento() {
         </Card>
 
         {/* Aprovações pendentes */}
-        <Card className="lg:col-span-2 p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl">
+        <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl">
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-foreground">Liberações de Lançamentos</h2>
             <p className="text-muted-foreground text-sm">

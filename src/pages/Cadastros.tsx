@@ -5,7 +5,28 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, Camera, Users, Crown, UserCog, Upload, Gift } from 'lucide-react';
+import { User, Camera, Users, Crown, UserCog, Upload, Gift, Package, UserCircle, Link as LinkIcon, Trash2 } from 'lucide-react';
+
+// Mock data para clientes
+const mockClientesList = [
+  { id: 1, name: 'Tech Corp', email: 'contato@techcorp.com', phone: '(11) 3333-4444' },
+  { id: 2, name: 'Digital Solutions', email: 'info@digital.com', phone: '(11) 3333-5555' },
+  { id: 3, name: 'InnovaWeb', email: 'contact@innova.com', phone: '(11) 3333-6666' },
+];
+
+// Mock data para produtos
+const mockProdutosList = [
+  { id: 1, name: 'Software License', price: 'R$ 5.000', category: 'Software' },
+  { id: 2, name: 'Consultoria', price: 'R$ 3.000', category: 'Serviço' },
+  { id: 3, name: 'Desenvolvimento Web', price: 'R$ 12.000', category: 'Serviço' },
+];
+
+// Mock data para links de venda
+const mockLinksVenda = [
+  { id: 1, name: 'Loja Principal', url: 'https://loja.empresa.com/ana', seller: 'Ana Silva' },
+  { id: 2, name: 'Marketplace', url: 'https://marketplace.com/carlos', seller: 'Carlos Santos' },
+  { id: 3, name: 'Site Corporativo', url: 'https://site.empresa.com/maria', seller: 'Maria Costa' },
+];
 
 // Mock data para usuários
 const mockUsers = [
@@ -238,6 +259,141 @@ export default function Cadastros() {
                   <p className="text-xs text-muted-foreground">Acesso básico</p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Cadastro de Clientes */}
+      <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+              <UserCircle className="w-4 h-4 text-white" />
+            </div>
+            <h2 className="text-xl font-semibold text-foreground">Cadastro de Clientes</h2>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <p className="text-muted-foreground">Gerencie os clientes cadastrados no sistema</p>
+              <Button className="bg-gradient-primary text-white shadow-glow">
+                <UserCircle className="w-4 h-4 mr-2" />
+                Adicionar Cliente
+              </Button>
+            </div>
+            
+            <div className="space-y-3">
+              {mockClientesList.map((cliente) => (
+                <div key={cliente.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">{cliente.name}</p>
+                    <div className="flex gap-4 mt-1">
+                      <p className="text-sm text-muted-foreground">{cliente.email}</p>
+                      <p className="text-sm text-muted-foreground">{cliente.phone}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Button variant="outline" size="sm">
+                      Editar
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Cadastro de Produtos */}
+      <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+              <Package className="w-4 h-4 text-white" />
+            </div>
+            <h2 className="text-xl font-semibold text-foreground">Cadastro de Produtos</h2>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <p className="text-muted-foreground">Gerencie os produtos e serviços cadastrados</p>
+              <Button className="bg-gradient-primary text-white shadow-glow">
+                <Package className="w-4 h-4 mr-2" />
+                Adicionar Produto
+              </Button>
+            </div>
+            
+            <div className="space-y-3">
+              {mockProdutosList.map((produto) => (
+                <div key={produto.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">{produto.name}</p>
+                    <div className="flex gap-4 mt-1">
+                      <p className="text-sm text-muted-foreground">{produto.category}</p>
+                      <p className="text-sm font-semibold text-success">{produto.price}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Button variant="outline" size="sm">
+                      Editar
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Cadastro de Links de Venda */}
+      <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+              <LinkIcon className="w-4 h-4 text-white" />
+            </div>
+            <h2 className="text-xl font-semibold text-foreground">Links de Venda</h2>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <p className="text-muted-foreground">Gerencie os links de venda dos vendedores</p>
+              <Button className="bg-gradient-primary text-white shadow-glow">
+                <LinkIcon className="w-4 h-4 mr-2" />
+                Adicionar Link
+              </Button>
+            </div>
+            
+            <div className="space-y-3">
+              {mockLinksVenda.map((link) => (
+                <div key={link.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">{link.name}</p>
+                    <div className="flex gap-4 mt-1">
+                      <p className="text-sm text-muted-foreground">{link.url}</p>
+                      <p className="text-sm text-primary">Vendedor: {link.seller}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Button variant="outline" size="sm">
+                      Editar
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
