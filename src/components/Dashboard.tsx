@@ -3,8 +3,9 @@ import { SalesRanking } from './SalesRanking';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TrendingUp, Users, Target, DollarSign, BarChart3, Building2 } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
+import { TrendingUp, Users, Target, DollarSign, BarChart3, Building2, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 
 // Mock data para estatísticas gerais
@@ -17,20 +18,21 @@ const dashboardStats = {
 
 // Mock data para empresas (para usuários master)
 const companiesData = [
-  { id: 'all', name: 'Todas as Empresas', sales: 445000, sellers: 6 },
-  { id: 'company1', name: 'TechCorp', sales: 180000, sellers: 3 },
-  { id: 'company2', name: 'InnovaSoft', sales: 165000, sellers: 2 },
-  { id: 'company3', name: 'DigitalMax', sales: 100000, sellers: 1 },
+  { id: 'company1', name: 'TechCorp', sales: 180000, sellers: 3, color: '#3b82f6' },
+  { id: 'company2', name: 'InnovaSoft', sales: 165000, sellers: 2, color: '#10b981' },
+  { id: 'company3', name: 'DigitalMax', sales: 100000, sellers: 1, color: '#f59e0b' },
 ];
 
-const chartData = [
-  { company: 'TechCorp', sales: 180000, color: '#3b82f6' },
-  { company: 'InnovaSoft', sales: 165000, color: '#10b981' },
-  { company: 'DigitalMax', sales: 100000, color: '#f59e0b' },
+// Mock data para equipes
+const teamsData = [
+  { id: 'team1', name: 'Equipe A', sales: 200000, sellers: 3 },
+  { id: 'team2', name: 'Equipe B', sales: 150000, sellers: 2 },
+  { id: 'team3', name: 'Equipe C', sales: 95000, sellers: 1 },
 ];
 
 export function Dashboard() {
-  const [selectedCompany, setSelectedCompany] = useState('all');
+  const [selectedCompanies, setSelectedCompanies] = useState<string[]>(companiesData.map(c => c.id));
+  const [selectedTeams, setSelectedTeams] = useState<string[]>(teamsData.map(t => t.id));
   const [userRole] = useState('master'); // Mock user role - in real app this would come from auth context
   
   const formatCurrency = (value: number) => {
@@ -41,7 +43,36 @@ export function Dashboard() {
     }).format(value);
   };
 
-  const currentCompanyData = companiesData.find(c => c.id === selectedCompany) || companiesData[0];
+  // Calcular dados filtrados baseado nas empresas e equipes selecionadas
+  const filteredCompaniesData = companiesData.filter(c => selectedCompanies.includes(c.id));
+  const filteredTeamsData = teamsData.filter(t => selectedTeams.includes(t.id));
+  
+  const totalFilteredSales = filteredCompaniesData.reduce((acc, curr) => acc + curr.sales, 0);
+  const totalFilteredSellers = filteredCompaniesData.reduce((acc, curr) => acc + curr.sellers, 0);
+
+  const toggleCompany = (companyId: string) => {
+    setSelectedCompanies(prev => 
+      prev.includes(companyId)
+        ? prev.filter(id => id !== companyId)
+        : [...prev, companyId]
+    );
+  };
+
+  const toggleTeam = (teamId: string) => {
+    setSelectedTeams(prev => 
+      prev.includes(teamId)
+        ? prev.filter(id => id !== teamId)
+        : [...prev, teamId]
+    );
+  };
+
+  const selectAllCompanies = () => {
+    setSelectedCompanies(companiesData.map(c => c.id));
+  };
+
+  const selectAllTeams = () => {
+    setSelectedTeams(teamsData.map(t => t.id));
+  };
 
   const StatsCard = ({ 
     title, 
@@ -91,52 +122,125 @@ export function Dashboard() {
           </p>
         </div>
 
-        {/* Company selector for master users */}
+        {/* Filters for master users */}
         {userRole === 'master' && (
           <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4 mb-6 flex-wrap">
               <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
                 <Building2 className="w-5 h-5" />
-                Seleção de Empresa
+                Filtros
               </h2>
-              <Select value={selectedCompany} onValueChange={setSelectedCompany}>
-                <SelectTrigger className="w-64">
-                  <SelectValue placeholder="Selecione uma empresa" />
-                </SelectTrigger>
-                <SelectContent>
-                  {companiesData.map((company) => (
-                    <SelectItem key={company.id} value={company.id}>
-                      {company.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              
+              {/* Company filter */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-64 justify-between">
+                    {selectedCompanies.length === companiesData.length
+                      ? 'Todas as Empresas'
+                      : selectedCompanies.length === 1
+                      ? companiesData.find(c => c.id === selectedCompanies[0])?.name
+                      : `${selectedCompanies.length} empresas selecionadas`}
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-0" align="start">
+                  <div className="p-3 border-b">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={selectAllCompanies}
+                      className="w-full justify-start"
+                    >
+                      Todas as Empresas
+                    </Button>
+                  </div>
+                  <div className="p-3 space-y-2">
+                    {companiesData.map((company) => (
+                      <div key={company.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={company.id}
+                          checked={selectedCompanies.includes(company.id)}
+                          onCheckedChange={() => toggleCompany(company.id)}
+                        />
+                        <label
+                          htmlFor={company.id}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          {company.name}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              {/* Team filter */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-64 justify-between">
+                    {selectedTeams.length === teamsData.length
+                      ? 'Todas as Equipes'
+                      : selectedTeams.length === 1
+                      ? teamsData.find(t => t.id === selectedTeams[0])?.name
+                      : `${selectedTeams.length} equipes selecionadas`}
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-0" align="start">
+                  <div className="p-3 border-b">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={selectAllTeams}
+                      className="w-full justify-start"
+                    >
+                      Todas as Equipes
+                    </Button>
+                  </div>
+                  <div className="p-3 space-y-2">
+                    {teamsData.map((team) => (
+                      <div key={team.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={team.id}
+                          checked={selectedTeams.includes(team.id)}
+                          onCheckedChange={() => toggleTeam(team.id)}
+                        />
+                        <label
+                          htmlFor={team.id}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          {team.name}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
             
             {/* Chart visualization */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-foreground mb-4">Vendas por Empresa</h3>
               <div className="space-y-4">
-                {chartData.map((item, index) => {
-                  const totalSales = chartData.reduce((acc, curr) => acc + curr.sales, 0);
-                  const percentage = (item.sales / totalSales) * 100;
+                {filteredCompaniesData.map((company) => {
+                  const percentage = totalFilteredSales > 0 ? (company.sales / totalFilteredSales) * 100 : 0;
                   
                   return (
-                    <div key={item.company} className="space-y-2">
+                    <div key={company.id} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div 
                             className="w-3 h-3 rounded-full shadow-sm" 
-                            style={{ backgroundColor: item.color }}
+                            style={{ backgroundColor: company.color }}
                           />
-                          <span className="font-semibold text-foreground">{item.company}</span>
+                          <span className="font-semibold text-foreground">{company.name}</span>
                         </div>
                         <div className="flex items-center space-x-4">
                           <span className="text-sm font-medium text-muted-foreground">
                             {percentage.toFixed(1)}%
                           </span>
                           <span className="font-bold text-success min-w-[120px] text-right">
-                            {formatCurrency(item.sales)}
+                            {formatCurrency(company.sales)}
                           </span>
                         </div>
                       </div>
@@ -145,7 +249,7 @@ export function Dashboard() {
                           className="absolute h-full rounded-full transition-all duration-500 shadow-sm"
                           style={{ 
                             width: `${percentage}%`,
-                            backgroundColor: item.color 
+                            backgroundColor: company.color 
                           }}
                         />
                       </div>
@@ -161,7 +265,7 @@ export function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <StatsCard
             title="Vendas Totais"
-            value={formatCurrency(currentCompanyData.sales)}
+            value={formatCurrency(totalFilteredSales)}
             icon={DollarSign}
             trend="+12.5%"
           />
