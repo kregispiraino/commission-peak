@@ -125,14 +125,15 @@ export function Dashboard() {
         {/* Filters for master users */}
         {userRole === 'master' && (
           <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-            <div className="flex items-center gap-4 mb-6 flex-wrap">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
               <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
                 <Building2 className="w-5 h-5" />
                 Filtros
               </h2>
               
-              {/* Company filter */}
-              <Popover>
+              <div className="flex items-center gap-4 flex-wrap">
+                {/* Company filter */}
+                <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-64 justify-between">
                     {selectedCompanies.length === companiesData.length
@@ -216,6 +217,7 @@ export function Dashboard() {
                   </div>
                 </PopoverContent>
               </Popover>
+              </div>
             </div>
             
             {/* Chart visualization */}
