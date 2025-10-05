@@ -238,40 +238,41 @@ export default function Lancamento() {
               ].map((approval) => (
                 <div 
                   key={approval.id}
-                  className="flex items-center justify-between p-4 bg-card rounded-lg border border-border hover:shadow-md transition-all"
+                  className="p-5 bg-card rounded-lg border border-border hover:shadow-md transition-all space-y-3"
                 >
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
-                        <User className="w-4 h-4 text-white" />
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center flex-shrink-0">
+                        <User className="w-5 h-5 text-white" />
                       </div>
-                      <div>
-                        <p className="font-medium text-foreground">{approval.seller}</p>
-                        <p className="text-sm text-muted-foreground">{approval.client}</p>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-foreground truncate">{approval.seller}</p>
+                        <p className="text-sm text-muted-foreground truncate">{approval.client}</p>
                       </div>
                     </div>
-                    <div className="ml-10 grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Valor:</span>
-                        <span className="ml-2 font-semibold text-success">{approval.value}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Produto:</span>
-                        <span className="ml-2 font-medium">{approval.product}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Data:</span>
-                        <span className="ml-2 font-medium">{approval.date}</span>
-                      </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <Button size="sm" className="bg-gradient-success text-white shadow-glow">
+                        Aprovar
+                      </Button>
+                      <Button size="sm" variant="outline" className="text-destructive border-destructive/20 hover:bg-destructive/10">
+                        Negar
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex gap-2 ml-4">
-                    <Button size="sm" className="bg-gradient-success text-white shadow-glow">
-                      Aprovar
-                    </Button>
-                    <Button size="sm" variant="outline" className="text-destructive border-destructive/20 hover:bg-destructive/10">
-                      Negar
-                    </Button>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-border/50">
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Valor</span>
+                      <span className="font-semibold text-success text-base">{approval.value}</span>
+                    </div>
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Produto</span>
+                      <span className="font-medium text-foreground text-sm truncate">{approval.product}</span>
+                    </div>
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Data</span>
+                      <span className="font-medium text-foreground text-sm">{approval.date}</span>
+                    </div>
                   </div>
                 </div>
               ))}
