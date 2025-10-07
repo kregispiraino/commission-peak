@@ -3,15 +3,21 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { PlusCircle, DollarSign, User, Calendar as CalendarIcon, Check } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { PlusCircle, DollarSign, User, Calendar as CalendarIcon, Check, CheckCheck, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock data
+const mockVendedores = [
+  'Ana Silva', 'Carlos Santos', 'Maria Costa', 'João Oliveira', 'Luiza Ferreira', 'Pedro Almeida'
+];
+
 const mockClientes = [
   'Tech Corp', 'Digital Solutions', 'InnovaWeb', 'Smart Systems', 'Cloud Services',
   'Data Analytics', 'Web Masters', 'Mobile First', 'Cyber Security', 'AI Labs'
@@ -23,11 +29,59 @@ const mockProdutos = [
 ];
 
 export default function Lancamento() {
+  const { toast } = useToast();
   const [date, setDate] = useState<Date>(new Date());
+  const [openVendedor, setOpenVendedor] = useState(false);
   const [openCliente, setOpenCliente] = useState(false);
   const [openProduto, setOpenProduto] = useState(false);
+  const [vendedor, setVendedor] = useState("");
   const [cliente, setCliente] = useState("");
   const [produto, setProduto] = useState("");
+  const [valor, setValor] = useState("");
+  const [pedido, setPedido] = useState("");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
+  const handleRegistrarVenda = () => {
+    if (!vendedor || !valor || !pedido || !cliente || !produto) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha todos os campos antes de registrar a venda.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmarVenda = () => {
+    toast({
+      title: "Venda registrada!",
+      description: "A venda foi enviada para aprovação com sucesso.",
+    });
+    setShowConfirmDialog(false);
+    // Reset form
+    setVendedor("");
+    setCliente("");
+    setProduto("");
+    setValor("");
+    setPedido("");
+    setDate(new Date());
+  };
+
+  const handleAprovarTodos = () => {
+    toast({
+      title: "Todos aprovados!",
+      description: "Todas as liberações pendentes foram aprovadas.",
+    });
+  };
+
+  const handleNegarTodos = () => {
+    toast({
+      title: "Todos negados!",
+      description: "Todas as liberações pendentes foram negadas.",
+      variant: "destructive",
+    });
+  };
 
   return (
     <div className="p-8 space-y-8">
@@ -52,19 +106,51 @@ export default function Lancamento() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="vendedor">Vendedor</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o vendedor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ana">Ana Silva</SelectItem>
-                    <SelectItem value="carlos">Carlos Santos</SelectItem>
-                    <SelectItem value="maria">Maria Costa</SelectItem>
-                    <SelectItem value="joao">João Oliveira</SelectItem>
-                    <SelectItem value="luiza">Luiza Ferreira</SelectItem>
-                    <SelectItem value="pedro">Pedro Almeida</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Popover open={openVendedor} onOpenChange={setOpenVendedor}>
+                  <PopoverTrigger asChild>
+                    <div className="relative">
+                      <Input
+                        value={vendedor}
+                        onChange={(e) => {
+                          setVendedor(e.target.value);
+                          setOpenVendedor(true);
+                        }}
+                        placeholder="Digite ou selecione o vendedor"
+                        className="pr-10"
+                      />
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar vendedor..." value={vendedor} onValueChange={setVendedor} />
+                      <CommandList>
+                        <CommandEmpty>Nenhum vendedor encontrado.</CommandEmpty>
+                        <CommandGroup heading="Vendedores Cadastrados">
+                          {mockVendedores
+                            .filter((v) => v.toLowerCase().includes(vendedor.toLowerCase()))
+                            .map((vendedorItem) => (
+                              <CommandItem
+                                key={vendedorItem}
+                                value={vendedorItem}
+                                onSelect={(currentValue) => {
+                                  setVendedor(currentValue);
+                                  setOpenVendedor(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    vendedor.toLowerCase() === vendedorItem.toLowerCase() ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {vendedorItem}
+                              </CommandItem>
+                            ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="space-y-2">
@@ -76,6 +162,8 @@ export default function Lancamento() {
                     placeholder="0,00"
                     className="pl-10"
                     type="number"
+                    value={valor}
+                    onChange={(e) => setValor(e.target.value)}
                   />
                 </div>
               </div>
@@ -85,6 +173,8 @@ export default function Lancamento() {
                 <Input 
                   id="pedido"
                   placeholder="Ex: PED-2024-001"
+                  value={pedido}
+                  onChange={(e) => setPedido(e.target.value)}
                 />
               </div>
 
@@ -214,22 +304,100 @@ export default function Lancamento() {
               </div>
             </div>
 
-            <Button className="w-full bg-gradient-primary text-white shadow-glow hover:shadow-xl transition-all">
+            <Button 
+              className="w-full bg-gradient-primary text-white shadow-glow hover:shadow-xl transition-all"
+              onClick={handleRegistrarVenda}
+            >
               <PlusCircle className="w-4 h-4 mr-2" />
               Registrar Venda
             </Button>
           </div>
         </Card>
 
+        {/* Confirmation Dialog */}
+        <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirmar Lançamento</DialogTitle>
+              <DialogDescription>
+                Revise os dados da venda antes de enviar para aprovação
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Vendedor</p>
+                  <p className="font-medium">{vendedor}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Valor</p>
+                  <p className="font-medium text-success">R$ {valor}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Cliente</p>
+                  <p className="font-medium">{cliente}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Produto/Serviço</p>
+                  <p className="font-medium">{produto}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Pedido</p>
+                  <p className="font-medium">{pedido}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Data</p>
+                  <p className="font-medium">{format(date, "dd/MM/yyyy")}</p>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+                Cancelar
+              </Button>
+              <Button 
+                className="bg-gradient-primary text-white"
+                onClick={handleConfirmarVenda}
+              >
+                Confirmar e Enviar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         {/* Aprovações pendentes */}
         <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl">
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-foreground">Liberações de Lançamentos</h2>
-            <p className="text-muted-foreground text-sm">
-              Aprovar ou negar lançamentos pendentes dos vendedores
-            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-foreground">Liberações de Lançamentos</h2>
+                <p className="text-muted-foreground text-sm">
+                  Aprovar ou negar lançamentos pendentes dos vendedores
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  className="bg-gradient-success text-white"
+                  onClick={handleAprovarTodos}
+                >
+                  <CheckCheck className="w-4 h-4 mr-1" />
+                  Aprovar Todos
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="text-destructive border-destructive/20 hover:bg-destructive/10"
+                  onClick={handleNegarTodos}
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Negar Todos
+                </Button>
+              </div>
+            </div>
             
-            <div className="space-y-3">
+            <ScrollArea className="h-[600px] pr-4">
+              <div className="space-y-3">
               {/* Mock pending approvals */}
               {[
                 { id: 1, seller: 'Ana Silva', value: 'R$ 8.500', client: 'Tech Corp', date: '2024-01-15', product: 'Software License' },
@@ -277,13 +445,14 @@ export default function Lancamento() {
                 </div>
               ))}
               
-              {/* Empty state */}
-              {false && (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">Nenhuma liberação pendente no momento</p>
-                </div>
-              )}
-            </div>
+                {/* Empty state */}
+                {false && (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">Nenhuma liberação pendente no momento</p>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
           </div>
         </Card>
       </div>
