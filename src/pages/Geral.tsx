@@ -4,7 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings, Bell, Shield, Palette, Database } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Settings, Bell, Shield, Palette, Database, User, Mail, Building2, Users, Camera, UserCog } from 'lucide-react';
 
 export default function Geral() {
   return (
@@ -20,6 +21,66 @@ export default function Geral() {
           Personalize sua experiência no sistema
         </p>
       </div>
+
+      {/* Informações Pessoais */}
+      <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
+        <div className="flex items-center gap-6">
+          <div className="relative flex-shrink-0">
+            <Avatar className="w-20 h-20 border-4 border-primary/20">
+              <AvatarImage src="" />
+              <AvatarFallback className="bg-gradient-primary text-white text-xl font-bold">
+                CS
+              </AvatarFallback>
+            </Avatar>
+            <Button 
+              size="icon" 
+              className="absolute -bottom-1 -right-1 w-7 h-7 bg-gradient-primary shadow-glow"
+            >
+              <Camera className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+          
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <User className="w-4 h-4" />
+                <span className="font-medium">Nome</span>
+              </div>
+              <p className="text-foreground font-semibold">Carlos Santos</p>
+            </div>
+            
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <Mail className="w-4 h-4" />
+                <span className="font-medium">E-mail</span>
+              </div>
+              <p className="text-foreground font-semibold">carlos@empresa.com</p>
+            </div>
+            
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <Building2 className="w-4 h-4" />
+                <span className="font-medium">Empresa</span>
+              </div>
+              <p className="text-foreground font-semibold">Empresa Alpha, Empresa Beta</p>
+            </div>
+            
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <Users className="w-4 h-4" />
+                <span className="font-medium">Equipe</span>
+              </div>
+              <p className="text-foreground font-semibold">Equipe Vendas SP, Equipe Digital</p>
+            </div>
+          </div>
+          
+          <div className="flex-shrink-0 text-center px-4 py-3 bg-primary/10 rounded-lg border border-primary/20">
+            <UserCog className="w-6 h-6 mx-auto mb-1 text-primary" />
+            <p className="text-xs font-medium text-muted-foreground">Acesso</p>
+            <p className="text-sm font-bold text-foreground">Vendedor</p>
+          </div>
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Notificações */}

@@ -3,13 +3,11 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
-import { User, Camera, Users, Crown, UserCog, Package, UserCircle, Link as LinkIcon, Trash2, Edit, Building2, ChevronDown, ChevronRight, Target, Percent, BadgeDollarSign } from 'lucide-react';
+import { Users, Crown, UserCog, Package, UserCircle, Link as LinkIcon, Trash2, Edit, Building2, ChevronDown, Target, Percent, BadgeDollarSign } from 'lucide-react';
 
 // Mock data
 const mockEmpresas = [
@@ -62,7 +60,6 @@ const roleIcons = {
 };
 
 export default function Cadastros() {
-  const [expandedField, setExpandedField] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<any>(null);
 
   return (
@@ -78,80 +75,6 @@ export default function Cadastros() {
           Gerencie suas informações e configurações do sistema
         </p>
       </div>
-
-      {/* Informações Pessoais */}
-      <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl">
-        <div className="space-y-6">
-          <h2 className="text-xl font-semibold text-foreground">Informações Pessoais</h2>
-          
-          <div className="flex items-center space-x-6">
-            <div className="relative">
-              <Avatar className="w-24 h-24 border-4 border-primary/20">
-                <AvatarImage src="" />
-                <AvatarFallback className="bg-gradient-primary text-white text-2xl font-bold">
-                  CS
-                </AvatarFallback>
-              </Avatar>
-              <Button 
-                size="icon" 
-                className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-primary shadow-glow"
-              >
-                <Camera className="w-4 h-4" />
-              </Button>
-            </div>
-            
-            <div>
-              <h3 className="text-2xl font-bold text-foreground">Carlos Santos</h3>
-              <p className="text-muted-foreground flex items-center gap-2">
-                <UserCog className="w-4 h-4" />
-                Vendedor
-              </p>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Collapsible open={expandedField === 'nome'} onOpenChange={(open) => setExpandedField(open ? 'nome' : null)}>
-              <CollapsibleTrigger className="w-full flex items-center justify-between p-3 bg-card rounded-lg border border-border hover:bg-accent transition-colors">
-                <span className="font-medium">Nome</span>
-                <ChevronRight className={`w-4 h-4 transition-transform ${expandedField === 'nome' ? 'rotate-90' : ''}`} />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-3">
-                <Input value="Carlos Santos" disabled className="bg-muted" />
-              </CollapsibleContent>
-            </Collapsible>
-
-            <Collapsible open={expandedField === 'email'} onOpenChange={(open) => setExpandedField(open ? 'email' : null)}>
-              <CollapsibleTrigger className="w-full flex items-center justify-between p-3 bg-card rounded-lg border border-border hover:bg-accent transition-colors">
-                <span className="font-medium">E-mail</span>
-                <ChevronRight className={`w-4 h-4 transition-transform ${expandedField === 'email' ? 'rotate-90' : ''}`} />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-3">
-                <Input value="carlos@empresa.com" disabled className="bg-muted" />
-              </CollapsibleContent>
-            </Collapsible>
-
-            <Collapsible open={expandedField === 'empresa'} onOpenChange={(open) => setExpandedField(open ? 'empresa' : null)}>
-              <CollapsibleTrigger className="w-full flex items-center justify-between p-3 bg-card rounded-lg border border-border hover:bg-accent transition-colors">
-                <span className="font-medium">Empresa</span>
-                <ChevronRight className={`w-4 h-4 transition-transform ${expandedField === 'empresa' ? 'rotate-90' : ''}`} />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-3">
-                <Input value="Empresa Alpha, Empresa Beta" disabled className="bg-muted" />
-              </CollapsibleContent>
-            </Collapsible>
-
-            <Collapsible open={expandedField === 'equipe'} onOpenChange={(open) => setExpandedField(open ? 'equipe' : null)}>
-              <CollapsibleTrigger className="w-full flex items-center justify-between p-3 bg-card rounded-lg border border-border hover:bg-accent transition-colors">
-                <span className="font-medium">Equipe</span>
-                <ChevronRight className={`w-4 h-4 transition-transform ${expandedField === 'equipe' ? 'rotate-90' : ''}`} />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-3">
-                <Input value="Equipe Vendas SP, Equipe Digital" disabled className="bg-muted" />
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
-        </div>
-      </Card>
 
       {/* Gerenciamento de Usuários */}
       <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
