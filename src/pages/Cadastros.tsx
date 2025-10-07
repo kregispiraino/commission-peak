@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Users, Crown, UserCog, Package, UserCircle, Link as LinkIcon, Trash2, Edit, Building2, ChevronDown, Target, Percent, Plus, ChevronRight } from 'lucide-react';
+import { Users, Crown, UserCog, Package, UserCircle, Link as LinkIcon, Trash2, Edit, Building2, ChevronDown, Target, Percent, Plus, ChevronRight, Search } from 'lucide-react';
 
 // Mock data
 const mockEmpresas = [
@@ -77,6 +77,17 @@ export default function Cadastros() {
     produtos: false,
     clientes: false,
     links: false
+  });
+
+  const [searchTerms, setSearchTerms] = useState({
+    usuarios: '',
+    empresas: '',
+    equipes: '',
+    metas: '',
+    comissoes: '',
+    produtos: '',
+    clientes: '',
+    links: ''
   });
 
   const toggleSection = (section: keyof typeof openSections) => {
@@ -218,9 +229,21 @@ export default function Cadastros() {
                 </DialogContent>
               </Dialog>
 
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar por nome do usuário..." 
+                  value={searchTerms.usuarios}
+                  onChange={(e) => setSearchTerms(prev => ({ ...prev, usuarios: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+
               <ScrollArea className="h-[400px]">
                 <div className="space-y-3 pr-4">
-                  {mockUsers.map((user) => {
+                  {mockUsers.filter(user => 
+                    user.name.toLowerCase().includes(searchTerms.usuarios.toLowerCase())
+                  ).map((user) => {
                     const RoleIcon = roleIcons[user.role as keyof typeof roleIcons];
                     return (
                       <div key={user.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
@@ -384,9 +407,21 @@ export default function Cadastros() {
                 Cadastrar Empresa
               </Button>
 
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar por nome da empresa..." 
+                  value={searchTerms.empresas}
+                  onChange={(e) => setSearchTerms(prev => ({ ...prev, empresas: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+
               <ScrollArea className="h-[240px]">
                 <div className="space-y-3 pr-4">
-                  {mockEmpresas.map((empresa) => (
+                  {mockEmpresas.filter(empresa => 
+                    empresa.name.toLowerCase().includes(searchTerms.empresas.toLowerCase())
+                  ).map((empresa) => (
                     <div key={empresa.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
                       <div>
                         <p className="font-medium text-foreground">{empresa.name}</p>
@@ -449,9 +484,21 @@ export default function Cadastros() {
                 Cadastrar Equipe
               </Button>
 
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar por nome da equipe..." 
+                  value={searchTerms.equipes}
+                  onChange={(e) => setSearchTerms(prev => ({ ...prev, equipes: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+
               <ScrollArea className="h-[240px]">
                 <div className="space-y-3 pr-4">
-                  {mockEquipes.map((equipe) => (
+                  {mockEquipes.filter(equipe => 
+                    equipe.name.toLowerCase().includes(searchTerms.equipes.toLowerCase())
+                  ).map((equipe) => (
                     <div key={equipe.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
                       <div>
                         <p className="font-medium text-foreground">{equipe.name}</p>
@@ -544,9 +591,25 @@ export default function Cadastros() {
                 Cadastrar Meta
               </Button>
 
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar por empresa ou equipe..." 
+                  value={searchTerms.metas}
+                  onChange={(e) => setSearchTerms(prev => ({ ...prev, metas: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+
               <ScrollArea className="h-[240px]">
                 <div className="space-y-3 pr-4">
-                  {mockMetas.map((meta) => (
+                  {mockMetas.filter(meta => {
+                    const empresa = mockEmpresas.find(e => e.id === meta.empresaId);
+                    const equipe = meta.equipeId ? mockEquipes.find(eq => eq.id === meta.equipeId) : null;
+                    const searchTerm = searchTerms.metas.toLowerCase();
+                    return (empresa?.name.toLowerCase().includes(searchTerm)) || 
+                           (equipe?.name.toLowerCase().includes(searchTerm));
+                  }).map((meta) => (
                     <div key={meta.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
                       <div>
                         <p className="font-medium text-foreground">
@@ -643,9 +706,25 @@ export default function Cadastros() {
                 Cadastrar Comissão
               </Button>
 
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar por empresa ou equipe..." 
+                  value={searchTerms.comissoes}
+                  onChange={(e) => setSearchTerms(prev => ({ ...prev, comissoes: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+
               <ScrollArea className="h-[240px]">
                 <div className="space-y-3 pr-4">
-                  {mockComissoes.map((comissao) => (
+                  {mockComissoes.filter(comissao => {
+                    const empresa = mockEmpresas.find(e => e.id === comissao.empresaId);
+                    const equipe = comissao.equipeId ? mockEquipes.find(eq => eq.id === comissao.equipeId) : null;
+                    const searchTerm = searchTerms.comissoes.toLowerCase();
+                    return (empresa?.name.toLowerCase().includes(searchTerm)) || 
+                           (equipe?.name.toLowerCase().includes(searchTerm));
+                  }).map((comissao) => (
                     <div key={comissao.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
                       <div>
                         <p className="font-medium text-foreground">
@@ -718,9 +797,21 @@ export default function Cadastros() {
                 Cadastrar Produto
               </Button>
 
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar por nome do produto..." 
+                  value={searchTerms.produtos}
+                  onChange={(e) => setSearchTerms(prev => ({ ...prev, produtos: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+
               <ScrollArea className="h-[240px]">
                 <div className="space-y-3 pr-4">
-                  {mockProdutos.map((produto) => (
+                  {mockProdutos.filter(produto => 
+                    produto.name.toLowerCase().includes(searchTerms.produtos.toLowerCase())
+                  ).map((produto) => (
                     <div key={produto.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
                       <div>
                         <p className="font-medium text-foreground">{produto.name}</p>
@@ -790,9 +881,21 @@ export default function Cadastros() {
                 Cadastrar Cliente
               </Button>
 
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar por nome do cliente..." 
+                  value={searchTerms.clientes}
+                  onChange={(e) => setSearchTerms(prev => ({ ...prev, clientes: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+
               <ScrollArea className="h-[240px]">
                 <div className="space-y-3 pr-4">
-                  {mockClientes.map((cliente) => (
+                  {mockClientes.filter(cliente => 
+                    cliente.name.toLowerCase().includes(searchTerms.clientes.toLowerCase())
+                  ).map((cliente) => (
                     <div key={cliente.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
                       <div>
                         <p className="font-medium text-foreground">{cliente.name}</p>
@@ -893,9 +996,22 @@ export default function Cadastros() {
                 Cadastrar Link
               </Button>
 
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar por nome do vendedor..." 
+                  value={searchTerms.links}
+                  onChange={(e) => setSearchTerms(prev => ({ ...prev, links: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+
               <ScrollArea className="h-[240px]">
                 <div className="space-y-3 pr-4">
-                  {mockLinks.map((link) => (
+                  {mockLinks.filter(link => {
+                    const vendedor = mockUsers.find(u => u.id === link.vendedorId);
+                    return vendedor?.name.toLowerCase().includes(searchTerms.links.toLowerCase());
+                  }).map((link) => (
                     <div key={link.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
                       <div>
                         <p className="font-medium text-foreground">{link.descricao}</p>
