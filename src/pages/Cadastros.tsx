@@ -7,7 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Users, Crown, UserCog, Package, UserCircle, Link as LinkIcon, Trash2, Edit, Building2, ChevronDown, Target, Percent, BadgeDollarSign } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Users, Crown, UserCog, Package, UserCircle, Link as LinkIcon, Trash2, Edit, Building2, ChevronDown, Target, Percent, Plus, ChevronRight } from 'lucide-react';
 
 // Mock data
 const mockEmpresas = [
@@ -41,11 +43,15 @@ const mockComissoes = [
 const mockProdutos = [
   { id: 1, name: 'Software License', valor: 5000, empresaId: 1 },
   { id: 2, name: 'Consultoria', valor: 3000, empresaId: 2 },
+  { id: 3, name: 'Suporte Técnico', valor: 2000, empresaId: 1 },
+  { id: 4, name: 'Treinamento', valor: 4000, empresaId: 2 },
 ];
 
 const mockClientes = [
   { id: 1, name: 'Tech Corp', cnpj: '33.333.333/0001-33', empresaId: 1 },
   { id: 2, name: 'Digital Solutions', cnpj: '44.444.444/0001-44', empresaId: 2 },
+  { id: 3, name: 'Inovare Ltda', cnpj: '55.555.555/0001-55', empresaId: 1 },
+  { id: 4, name: 'StartHub', cnpj: '66.666.666/0001-66', empresaId: 2 },
 ];
 
 const mockLinks = [
@@ -61,9 +67,24 @@ const roleIcons = {
 
 export default function Cadastros() {
   const [editingUser, setEditingUser] = useState<any>(null);
+  const [isAddingUser, setIsAddingUser] = useState(false);
+  const [openSections, setOpenSections] = useState({
+    usuarios: false,
+    empresas: false,
+    equipes: false,
+    metas: false,
+    comissoes: false,
+    produtos: false,
+    clientes: false,
+    links: false
+  });
+
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-8 space-y-6">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
           <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
@@ -77,648 +98,830 @@ export default function Cadastros() {
       </div>
 
       {/* Gerenciamento de Usuários */}
-      <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Users className="w-4 h-4 text-white" />
+      <Collapsible open={openSections.usuarios} onOpenChange={() => toggleSection('usuarios')}>
+        <Card className="bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg overflow-hidden">
+          <CollapsibleTrigger className="w-full">
+            <div className="p-6 flex items-center justify-between hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <Users className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Usuários</h2>
+              </div>
+              <ChevronRight className={`w-5 h-5 transition-transform ${openSections.usuarios ? 'rotate-90' : ''}`} />
             </div>
-            <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Usuários</h2>
-          </div>
-          
-          <div className="space-y-3">
-            {mockUsers.map((user) => {
-              const RoleIcon = roleIcons[user.role as keyof typeof roleIcons];
-              return (
-                <div key={user.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
-                      <RoleIcon className="w-5 h-5 text-white" />
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-6 pb-6 space-y-4">
+              <Dialog open={isAddingUser} onOpenChange={setIsAddingUser}>
+                <DialogTrigger asChild>
+                  <Button className="w-full bg-gradient-primary text-white">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Adicionar Usuário
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Adicionar Novo Usuário</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Nome</Label>
+                        <Input placeholder="Nome completo" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>E-mail</Label>
+                        <Input placeholder="email@empresa.com" />
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-foreground">{user.name}</p>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" onClick={() => setEditingUser(user)}>
-                          <Edit className="w-4 h-4 mr-1" />
-                          Editar
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>Editar Usuário</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4 py-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label>Nome</Label>
-                              <Input defaultValue={user.name} />
-                            </div>
-                            <div className="space-y-2">
-                              <Label>E-mail</Label>
-                              <Input defaultValue={user.email} />
-                            </div>
-                          </div>
 
-                          <div className="space-y-2">
-                            <Label>Empresas</Label>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-full justify-between">
-                                  <span>{user.empresaIds.length} empresa(s) selecionada(s)</span>
-                                  <ChevronDown className="w-4 h-4" />
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-full p-4">
-                                <div className="space-y-2">
-                                  {mockEmpresas.map((empresa) => (
-                                    <div key={empresa.id} className="flex items-center space-x-2">
-                                      <Checkbox defaultChecked={user.empresaIds.includes(empresa.id)} />
-                                      <label className="text-sm">{empresa.name}</label>
-                                    </div>
-                                  ))}
-                                </div>
-                              </PopoverContent>
-                            </Popover>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>Equipes</Label>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-full justify-between">
-                                  <span>{user.equipeIds.length} equipe(s) selecionada(s)</span>
-                                  <ChevronDown className="w-4 h-4" />
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-full p-4">
-                                <div className="space-y-2">
-                                  {mockEquipes.map((equipe) => (
-                                    <div key={equipe.id} className="flex items-center space-x-2">
-                                      <Checkbox defaultChecked={user.equipeIds.includes(equipe.id)} />
-                                      <label className="text-sm">{equipe.name}</label>
-                                    </div>
-                                  ))}
-                                </div>
-                              </PopoverContent>
-                            </Popover>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label>Acesso</Label>
-                              <Select defaultValue={user.role}>
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="master">Master</SelectItem>
-                                  <SelectItem value="administrador">Administrador</SelectItem>
-                                  <SelectItem value="vendedor">Vendedor</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="space-y-2">
-                              <Label>Senha</Label>
-                              <Input type="password" placeholder="Nova senha (opcional)" />
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label>Percentual de Comissão (%)</Label>
-                              <Input type="number" defaultValue={user.comissao} />
-                            </div>
-                            <div className="space-y-2">
-                              <Label>Meta Individual (R$)</Label>
-                              <Input type="number" defaultValue={user.meta} />
-                            </div>
-                          </div>
-
-                          <Button className="w-full bg-gradient-primary text-white">
-                            Salvar Alterações
+                    <div className="space-y-2">
+                      <Label>Empresas</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="w-full justify-between">
+                            <span>Selecione as empresas</span>
+                            <ChevronDown className="w-4 h-4" />
                           </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                    <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
-                      <Trash2 className="w-4 h-4" />
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-4">
+                          <div className="space-y-2">
+                            {mockEmpresas.map((empresa) => (
+                              <div key={empresa.id} className="flex items-center space-x-2">
+                                <Checkbox />
+                                <label className="text-sm">{empresa.name}</label>
+                              </div>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Equipes</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="w-full justify-between">
+                            <span>Selecione as equipes</span>
+                            <ChevronDown className="w-4 h-4" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-4">
+                          <div className="space-y-2">
+                            {mockEquipes.map((equipe) => (
+                              <div key={equipe.id} className="flex items-center space-x-2">
+                                <Checkbox />
+                                <label className="text-sm">{equipe.name}</label>
+                              </div>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Acesso</Label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o acesso" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="master">Master</SelectItem>
+                            <SelectItem value="administrador">Administrador</SelectItem>
+                            <SelectItem value="vendedor">Vendedor</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Senha</Label>
+                        <Input type="password" placeholder="Senha inicial" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Percentual de Comissão (%)</Label>
+                        <Input type="number" placeholder="0" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Meta Individual (R$)</Label>
+                        <Input type="number" placeholder="0" />
+                      </div>
+                    </div>
+
+                    <Button className="w-full bg-gradient-primary text-white">
+                      Criar Usuário
                     </Button>
                   </div>
+                </DialogContent>
+              </Dialog>
+
+              <ScrollArea className="h-[400px]">
+                <div className="space-y-3 pr-4">
+                  {mockUsers.map((user) => {
+                    const RoleIcon = roleIcons[user.role as keyof typeof roleIcons];
+                    return (
+                      <div key={user.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
+                            <RoleIcon className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">{user.name}</p>
+                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" onClick={() => setEditingUser(user)}>
+                                <Edit className="w-4 h-4 mr-1" />
+                                Editar
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle>Editar Usuário</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4 py-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label>Nome</Label>
+                                    <Input defaultValue={user.name} />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>E-mail</Label>
+                                    <Input defaultValue={user.email} />
+                                  </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label>Empresas</Label>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button variant="outline" className="w-full justify-between">
+                                        <span>{user.empresaIds.length} empresa(s) selecionada(s)</span>
+                                        <ChevronDown className="w-4 h-4" />
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full p-4">
+                                      <div className="space-y-2">
+                                        {mockEmpresas.map((empresa) => (
+                                          <div key={empresa.id} className="flex items-center space-x-2">
+                                            <Checkbox defaultChecked={user.empresaIds.includes(empresa.id)} />
+                                            <label className="text-sm">{empresa.name}</label>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label>Equipes</Label>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button variant="outline" className="w-full justify-between">
+                                        <span>{user.equipeIds.length} equipe(s) selecionada(s)</span>
+                                        <ChevronDown className="w-4 h-4" />
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full p-4">
+                                      <div className="space-y-2">
+                                        {mockEquipes.map((equipe) => (
+                                          <div key={equipe.id} className="flex items-center space-x-2">
+                                            <Checkbox defaultChecked={user.equipeIds.includes(equipe.id)} />
+                                            <label className="text-sm">{equipe.name}</label>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label>Acesso</Label>
+                                    <Select defaultValue={user.role}>
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="master">Master</SelectItem>
+                                        <SelectItem value="administrador">Administrador</SelectItem>
+                                        <SelectItem value="vendedor">Vendedor</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Senha</Label>
+                                    <Input type="password" placeholder="Nova senha (opcional)" />
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label>Percentual de Comissão (%)</Label>
+                                    <Input type="number" defaultValue={user.comissao} />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Meta Individual (R$)</Label>
+                                    <Input type="number" defaultValue={user.meta} />
+                                  </div>
+                                </div>
+
+                                <Button className="w-full bg-gradient-primary text-white">
+                                  Salvar Alterações
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                          <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </Card>
+              </ScrollArea>
+            </div>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Gerenciamento de Empresas */}
-      <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Building2 className="w-4 h-4 text-white" />
-            </div>
-            <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Empresas</h2>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="space-y-2">
-              <Label>Nome da Empresa</Label>
-              <Input placeholder="Nome da empresa" />
-            </div>
-            <div className="space-y-2">
-              <Label>CNPJ</Label>
-              <Input placeholder="00.000.000/0001-00" />
-            </div>
-          </div>
-          <Button className="bg-gradient-primary text-white">
-            <Building2 className="w-4 h-4 mr-2" />
-            Cadastrar Empresa
-          </Button>
-
-          <div className="space-y-3">
-            {mockEmpresas.map((empresa) => (
-              <div key={empresa.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
-                <div>
-                  <p className="font-medium text-foreground">{empresa.name}</p>
-                  <p className="text-sm text-muted-foreground">{empresa.cnpj}</p>
+      <Collapsible open={openSections.empresas} onOpenChange={() => toggleSection('empresas')}>
+        <Card className="bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg overflow-hidden">
+          <CollapsibleTrigger className="w-full">
+            <div className="p-6 flex items-center justify-between hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <Building2 className="w-4 h-4 text-white" />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Empresas</h2>
+              </div>
+              <ChevronRight className={`w-5 h-5 transition-transform ${openSections.empresas ? 'rotate-90' : ''}`} />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-6 pb-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Nome da Empresa</Label>
+                  <Input placeholder="Nome da empresa" />
+                </div>
+                <div className="space-y-2">
+                  <Label>CNPJ</Label>
+                  <Input placeholder="00.000.000/0001-00" />
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </Card>
+              <Button className="w-full bg-gradient-primary text-white">
+                <Building2 className="w-4 h-4 mr-2" />
+                Cadastrar Empresa
+              </Button>
+
+              <ScrollArea className="h-[240px]">
+                <div className="space-y-3 pr-4">
+                  {mockEmpresas.map((empresa) => (
+                    <div key={empresa.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
+                      <div>
+                        <p className="font-medium text-foreground">{empresa.name}</p>
+                        <p className="text-sm text-muted-foreground">{empresa.cnpj}</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="outline" size="sm">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Gerenciamento de Equipes */}
-      <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Users className="w-4 h-4 text-white" />
-            </div>
-            <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Equipes</h2>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="space-y-2">
-              <Label>Empresa</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a empresa" />
-                </SelectTrigger>
-                <SelectContent>
-                  {mockEmpresas.map((empresa) => (
-                    <SelectItem key={empresa.id} value={empresa.id.toString()}>{empresa.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Nome da Equipe</Label>
-              <Input placeholder="Nome da equipe" />
-            </div>
-          </div>
-          <Button className="bg-gradient-primary text-white">
-            <Users className="w-4 h-4 mr-2" />
-            Cadastrar Equipe
-          </Button>
-
-          <div className="space-y-3">
-            {mockEquipes.map((equipe) => (
-              <div key={equipe.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
-                <div>
-                  <p className="font-medium text-foreground">{equipe.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {mockEmpresas.find(e => e.id === equipe.empresaId)?.name}
-                  </p>
+      <Collapsible open={openSections.equipes} onOpenChange={() => toggleSection('equipes')}>
+        <Card className="bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg overflow-hidden">
+          <CollapsibleTrigger className="w-full">
+            <div className="p-6 flex items-center justify-between hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <Users className="w-4 h-4 text-white" />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Equipes</h2>
+              </div>
+              <ChevronRight className={`w-5 h-5 transition-transform ${openSections.equipes ? 'rotate-90' : ''}`} />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-6 pb-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Empresa</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a empresa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockEmpresas.map((empresa) => (
+                        <SelectItem key={empresa.id} value={empresa.id.toString()}>{empresa.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Nome da Equipe</Label>
+                  <Input placeholder="Nome da equipe" />
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </Card>
+              <Button className="w-full bg-gradient-primary text-white">
+                <Users className="w-4 h-4 mr-2" />
+                Cadastrar Equipe
+              </Button>
+
+              <ScrollArea className="h-[240px]">
+                <div className="space-y-3 pr-4">
+                  {mockEquipes.map((equipe) => (
+                    <div key={equipe.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
+                      <div>
+                        <p className="font-medium text-foreground">{equipe.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {mockEmpresas.find(e => e.id === equipe.empresaId)?.name}
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="outline" size="sm">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Gerenciamento de Metas */}
-      <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Target className="w-4 h-4 text-white" />
+      <Collapsible open={openSections.metas} onOpenChange={() => toggleSection('metas')}>
+        <Card className="bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg overflow-hidden">
+          <CollapsibleTrigger className="w-full">
+            <div className="p-6 flex items-center justify-between hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <Target className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Metas</h2>
+              </div>
+              <ChevronRight className={`w-5 h-5 transition-transform ${openSections.metas ? 'rotate-90' : ''}`} />
             </div>
-            <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Metas</h2>
-          </div>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Tipo de Meta</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="empresa">Empresa</SelectItem>
-                  <SelectItem value="equipe">Equipe</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-6 pb-6 space-y-4">
               <div className="space-y-2">
-                <Label>Empresa</Label>
+                <Label>Tipo de Meta</Label>
                 <Select>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione a empresa" />
+                    <SelectValue placeholder="Selecione o tipo" />
                   </SelectTrigger>
                   <SelectContent>
-                    {mockEmpresas.map((empresa) => (
-                      <SelectItem key={empresa.id} value={empresa.id.toString()}>{empresa.name}</SelectItem>
-                    ))}
+                    <SelectItem value="empresa">Empresa</SelectItem>
+                    <SelectItem value="equipe">Equipe</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Empresa</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a empresa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockEmpresas.map((empresa) => (
+                        <SelectItem key={empresa.id} value={empresa.id.toString()}>{empresa.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Equipe (opcional)</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a equipe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockEquipes.map((equipe) => (
+                        <SelectItem key={equipe.id} value={equipe.id.toString()}>{equipe.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label>Equipe (opcional)</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a equipe" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockEquipes.map((equipe) => (
-                      <SelectItem key={equipe.id} value={equipe.id.toString()}>{equipe.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Valor da Meta (R$)</Label>
+                <Input type="number" placeholder="0,00" />
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label>Valor da Meta (R$)</Label>
-              <Input type="number" placeholder="0,00" />
-            </div>
+              <Button className="w-full bg-gradient-primary text-white">
+                <Target className="w-4 h-4 mr-2" />
+                Cadastrar Meta
+              </Button>
 
-            <Button className="bg-gradient-primary text-white">
-              <Target className="w-4 h-4 mr-2" />
-              Cadastrar Meta
-            </Button>
-          </div>
-
-          <div className="space-y-3">
-            {mockMetas.map((meta) => (
-              <div key={meta.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
-                <div>
-                  <p className="font-medium text-foreground">
-                    {meta.tipo === 'empresa' ? 'Meta de Empresa' : 'Meta de Equipe'}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {mockEmpresas.find(e => e.id === meta.empresaId)?.name}
-                    {meta.tipo === 'equipe' && ` - ${mockEquipes.find(eq => eq.id === meta.equipeId)?.name}`}
-                  </p>
-                  <p className="text-sm font-semibold text-success">R$ {meta.valor.toLocaleString()}</p>
+              <ScrollArea className="h-[240px]">
+                <div className="space-y-3 pr-4">
+                  {mockMetas.map((meta) => (
+                    <div key={meta.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {meta.tipo === 'empresa' ? 'Meta de Empresa' : 'Meta de Equipe'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {mockEmpresas.find(e => e.id === meta.empresaId)?.name}
+                          {meta.tipo === 'equipe' && ` - ${mockEquipes.find(eq => eq.id === meta.equipeId)?.name}`}
+                        </p>
+                        <p className="text-sm font-semibold text-success">R$ {meta.valor.toLocaleString()}</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="outline" size="sm">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Card>
+              </ScrollArea>
+            </div>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Gerenciamento de Comissões */}
-      <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Percent className="w-4 h-4 text-white" />
+      <Collapsible open={openSections.comissoes} onOpenChange={() => toggleSection('comissoes')}>
+        <Card className="bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg overflow-hidden">
+          <CollapsibleTrigger className="w-full">
+            <div className="p-6 flex items-center justify-between hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <Percent className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Comissões</h2>
+              </div>
+              <ChevronRight className={`w-5 h-5 transition-transform ${openSections.comissoes ? 'rotate-90' : ''}`} />
             </div>
-            <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Comissões</h2>
-          </div>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Tipo de Comissão</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="empresa">Empresa</SelectItem>
-                  <SelectItem value="equipe">Equipe</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-6 pb-6 space-y-4">
               <div className="space-y-2">
-                <Label>Empresa</Label>
+                <Label>Tipo de Comissão</Label>
                 <Select>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione a empresa" />
+                    <SelectValue placeholder="Selecione o tipo" />
                   </SelectTrigger>
                   <SelectContent>
-                    {mockEmpresas.map((empresa) => (
-                      <SelectItem key={empresa.id} value={empresa.id.toString()}>{empresa.name}</SelectItem>
-                    ))}
+                    <SelectItem value="empresa">Empresa</SelectItem>
+                    <SelectItem value="equipe">Equipe</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Empresa</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a empresa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockEmpresas.map((empresa) => (
+                        <SelectItem key={empresa.id} value={empresa.id.toString()}>{empresa.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Equipe (opcional)</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a equipe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockEquipes.map((equipe) => (
+                        <SelectItem key={equipe.id} value={equipe.id.toString()}>{equipe.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label>Equipe (opcional)</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a equipe" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockEquipes.map((equipe) => (
-                      <SelectItem key={equipe.id} value={equipe.id.toString()}>{equipe.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Percentual de Comissão (%)</Label>
+                <Input type="number" placeholder="0" />
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label>Percentual de Comissão (%)</Label>
-              <Input type="number" placeholder="0" />
-            </div>
+              <Button className="w-full bg-gradient-primary text-white">
+                <Percent className="w-4 h-4 mr-2" />
+                Cadastrar Comissão
+              </Button>
 
-            <Button className="bg-gradient-primary text-white">
-              <Percent className="w-4 h-4 mr-2" />
-              Cadastrar Comissão
-            </Button>
-          </div>
-
-          <div className="space-y-3">
-            {mockComissoes.map((comissao) => (
-              <div key={comissao.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
-                <div>
-                  <p className="font-medium text-foreground">
-                    {comissao.tipo === 'empresa' ? 'Comissão de Empresa' : 'Comissão de Equipe'}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {mockEmpresas.find(e => e.id === comissao.empresaId)?.name}
-                    {comissao.tipo === 'equipe' && ` - ${mockEquipes.find(eq => eq.id === comissao.equipeId)?.name}`}
-                  </p>
-                  <p className="text-sm font-semibold text-success">{comissao.valor}%</p>
+              <ScrollArea className="h-[240px]">
+                <div className="space-y-3 pr-4">
+                  {mockComissoes.map((comissao) => (
+                    <div key={comissao.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {comissao.tipo === 'empresa' ? 'Comissão de Empresa' : 'Comissão de Equipe'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {mockEmpresas.find(e => e.id === comissao.empresaId)?.name}
+                          {comissao.tipo === 'equipe' && ` - ${mockEquipes.find(eq => eq.id === comissao.equipeId)?.name}`}
+                        </p>
+                        <p className="text-sm font-semibold text-success">{comissao.valor}%</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="outline" size="sm">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Card>
+              </ScrollArea>
+            </div>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Gerenciamento de Produtos */}
-      <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Package className="w-4 h-4 text-white" />
-            </div>
-            <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Produtos</h2>
-          </div>
-          
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <div className="space-y-2">
-              <Label>Empresa</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a empresa" />
-                </SelectTrigger>
-                <SelectContent>
-                  {mockEmpresas.map((empresa) => (
-                    <SelectItem key={empresa.id} value={empresa.id.toString()}>{empresa.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Nome do Produto</Label>
-              <Input placeholder="Nome do produto" />
-            </div>
-            <div className="space-y-2">
-              <Label>Valor (R$)</Label>
-              <Input type="number" placeholder="0,00" />
-            </div>
-          </div>
-          <Button className="bg-gradient-primary text-white">
-            <Package className="w-4 h-4 mr-2" />
-            Cadastrar Produto
-          </Button>
-
-          <div className="space-y-3">
-            {mockProdutos.map((produto) => (
-              <div key={produto.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
-                <div>
-                  <p className="font-medium text-foreground">{produto.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {mockEmpresas.find(e => e.id === produto.empresaId)?.name}
-                  </p>
-                  <p className="text-sm font-semibold text-success">R$ {produto.valor.toLocaleString()}</p>
+      <Collapsible open={openSections.produtos} onOpenChange={() => toggleSection('produtos')}>
+        <Card className="bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg overflow-hidden">
+          <CollapsibleTrigger className="w-full">
+            <div className="p-6 flex items-center justify-between hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <Package className="w-4 h-4 text-white" />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Produtos</h2>
+              </div>
+              <ChevronRight className={`w-5 h-5 transition-transform ${openSections.produtos ? 'rotate-90' : ''}`} />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-6 pb-6 space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Empresa</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a empresa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockEmpresas.map((empresa) => (
+                        <SelectItem key={empresa.id} value={empresa.id.toString()}>{empresa.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Nome do Produto</Label>
+                  <Input placeholder="Nome do produto" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Valor (R$)</Label>
+                  <Input type="number" placeholder="0,00" />
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </Card>
+              <Button className="w-full bg-gradient-primary text-white">
+                <Package className="w-4 h-4 mr-2" />
+                Cadastrar Produto
+              </Button>
+
+              <ScrollArea className="h-[240px]">
+                <div className="space-y-3 pr-4">
+                  {mockProdutos.map((produto) => (
+                    <div key={produto.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
+                      <div>
+                        <p className="font-medium text-foreground">{produto.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {mockEmpresas.find(e => e.id === produto.empresaId)?.name}
+                        </p>
+                        <p className="text-sm font-semibold text-success">R$ {produto.valor.toLocaleString()}</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="outline" size="sm">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Gerenciamento de Clientes */}
-      <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <UserCircle className="w-4 h-4 text-white" />
-            </div>
-            <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Clientes</h2>
-          </div>
-          
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <div className="space-y-2">
-              <Label>Empresa</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a empresa" />
-                </SelectTrigger>
-                <SelectContent>
-                  {mockEmpresas.map((empresa) => (
-                    <SelectItem key={empresa.id} value={empresa.id.toString()}>{empresa.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Nome do Cliente</Label>
-              <Input placeholder="Nome do cliente" />
-            </div>
-            <div className="space-y-2">
-              <Label>CNPJ</Label>
-              <Input placeholder="00.000.000/0001-00" />
-            </div>
-          </div>
-          <Button className="bg-gradient-primary text-white">
-            <UserCircle className="w-4 h-4 mr-2" />
-            Cadastrar Cliente
-          </Button>
-
-          <div className="space-y-3">
-            {mockClientes.map((cliente) => (
-              <div key={cliente.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
-                <div>
-                  <p className="font-medium text-foreground">{cliente.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {mockEmpresas.find(e => e.id === cliente.empresaId)?.name}
-                  </p>
-                  <p className="text-sm text-muted-foreground">{cliente.cnpj}</p>
+      <Collapsible open={openSections.clientes} onOpenChange={() => toggleSection('clientes')}>
+        <Card className="bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg overflow-hidden">
+          <CollapsibleTrigger className="w-full">
+            <div className="p-6 flex items-center justify-between hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <UserCircle className="w-4 h-4 text-white" />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Clientes</h2>
+              </div>
+              <ChevronRight className={`w-5 h-5 transition-transform ${openSections.clientes ? 'rotate-90' : ''}`} />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-6 pb-6 space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Empresa</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a empresa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockEmpresas.map((empresa) => (
+                        <SelectItem key={empresa.id} value={empresa.id.toString()}>{empresa.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Nome do Cliente</Label>
+                  <Input placeholder="Nome do cliente" />
+                </div>
+                <div className="space-y-2">
+                  <Label>CNPJ</Label>
+                  <Input placeholder="00.000.000/0001-00" />
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </Card>
+              <Button className="w-full bg-gradient-primary text-white">
+                <UserCircle className="w-4 h-4 mr-2" />
+                Cadastrar Cliente
+              </Button>
+
+              <ScrollArea className="h-[240px]">
+                <div className="space-y-3 pr-4">
+                  {mockClientes.map((cliente) => (
+                    <div key={cliente.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
+                      <div>
+                        <p className="font-medium text-foreground">{cliente.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {mockEmpresas.find(e => e.id === cliente.empresaId)?.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">{cliente.cnpj}</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="outline" size="sm">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Gerenciamento de Links */}
-      <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <LinkIcon className="w-4 h-4 text-white" />
-            </div>
-            <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Links</h2>
-          </div>
-          
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Descrição do Link</Label>
-                <Input placeholder="Descrição" />
-              </div>
-              <div className="space-y-2">
-                <Label>Link</Label>
-                <Input placeholder="https://" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Empresa</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a empresa" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockEmpresas.map((empresa) => (
-                      <SelectItem key={empresa.id} value={empresa.id.toString()}>{empresa.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Equipe</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a equipe" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockEquipes.map((equipe) => (
-                      <SelectItem key={equipe.id} value={equipe.id.toString()}>{equipe.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Vendedor</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o vendedor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockUsers.map((user) => (
-                      <SelectItem key={user.id} value={user.id.toString()}>{user.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Button className="bg-gradient-primary text-white">
-              <LinkIcon className="w-4 h-4 mr-2" />
-              Cadastrar Link
-            </Button>
-          </div>
-
-          <div className="space-y-3">
-            {mockLinks.map((link) => (
-              <div key={link.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
-                <div>
-                  <p className="font-medium text-foreground">{link.descricao}</p>
-                  <p className="text-sm text-muted-foreground truncate max-w-md">{link.link}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {mockEmpresas.find(e => e.id === link.empresaId)?.name} - {mockEquipes.find(eq => eq.id === link.equipeId)?.name} - {mockUsers.find(u => u.id === link.vendedorId)?.name}
-                  </p>
+      <Collapsible open={openSections.links} onOpenChange={() => toggleSection('links')}>
+        <Card className="bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg overflow-hidden">
+          <CollapsibleTrigger className="w-full">
+            <div className="p-6 flex items-center justify-between hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <LinkIcon className="w-4 h-4 text-white" />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                <h2 className="text-xl font-semibold text-foreground">Gerenciamento de Links</h2>
+              </div>
+              <ChevronRight className={`w-5 h-5 transition-transform ${openSections.links ? 'rotate-90' : ''}`} />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-6 pb-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Vendedor</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o vendedor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockUsers.map((user) => (
+                        <SelectItem key={user.id} value={user.id.toString()}>{user.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Link</Label>
+                  <Input placeholder="https://" />
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </Card>
+
+              <div className="space-y-2">
+                <Label>Descrição (opcional)</Label>
+                <Input placeholder="Descrição do link" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Empresa (opcional)</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a empresa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockEmpresas.map((empresa) => (
+                        <SelectItem key={empresa.id} value={empresa.id.toString()}>{empresa.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Equipe (opcional)</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a equipe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockEquipes.map((equipe) => (
+                        <SelectItem key={equipe.id} value={equipe.id.toString()}>{equipe.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <Button className="w-full bg-gradient-primary text-white">
+                <LinkIcon className="w-4 h-4 mr-2" />
+                Cadastrar Link
+              </Button>
+
+              <ScrollArea className="h-[240px]">
+                <div className="space-y-3 pr-4">
+                  {mockLinks.map((link) => (
+                    <div key={link.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
+                      <div>
+                        <p className="font-medium text-foreground">{link.descricao}</p>
+                        <p className="text-sm text-muted-foreground truncate max-w-md">{link.link}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {mockUsers.find(u => u.id === link.vendedorId)?.name}
+                          {link.empresaId && ` - ${mockEmpresas.find(e => e.id === link.empresaId)?.name}`}
+                          {link.equipeId && ` - ${mockEquipes.find(eq => eq.id === link.equipeId)?.name}`}
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="outline" size="sm">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
     </div>
   );
 }
