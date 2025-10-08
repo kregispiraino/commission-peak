@@ -51,9 +51,28 @@ export const useUsuarios = () => {
 
   const createMutation = useMutation({
     mutationFn: async (usuario: any) => {
+      // Primeiro, cria conta de autenticação se senha foi fornecida
+      if (usuario.senha && usuario.email) {
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: usuario.email,
+          password: usuario.senha,
+          options: {
+            data: {
+              nome: usuario.nome,
+            }
+          }
+        });
+        
+        if (authError) throw authError;
+      }
+
+      // Remove senha antes de inserir na tabela usuarios
+      const { senha, ...usuarioData } = usuario;
+      
+      // Depois insere na tabela usuarios
       const { data, error } = await supabase
         .from('usuarios')
-        .insert([{ ...usuario, id_ascora: idAscora }])
+        .insert([{ ...usuarioData, id_ascora: idAscora }])
         .select()
         .single();
       
