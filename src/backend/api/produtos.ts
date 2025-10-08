@@ -12,9 +12,10 @@ export interface Produto {
   ativo?: boolean;
 }
 
-// ROTA: Listar produtos
+// ROTA GET: Listar produtos
 export async function listarProdutos(idAscora: string): Promise<Produto[]> {
-  console.log('🔵 Backend - Listar produtos para id_ascora:', idAscora);
+  console.log('🔵 Backend - GET Listar produtos para id_ascora:', idAscora);
+  await new Promise(resolve => setTimeout(resolve, 300));
   
   // TODO: Implementar lógica de busca no banco de dados
   

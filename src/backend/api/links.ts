@@ -10,9 +10,10 @@ export interface Link {
   ativo?: boolean;
 }
 
-// ROTA: Listar links
+// ROTA GET: Listar links
 export async function listarLinks(idAscora: string): Promise<Link[]> {
-  console.log('🔵 Backend - Listar links para id_ascora:', idAscora);
+  console.log('🔵 Backend - GET Listar links para id_ascora:', idAscora);
+  await new Promise(resolve => setTimeout(resolve, 300));
   
   // TODO: Implementar lógica de busca no banco de dados
   

@@ -11,11 +11,12 @@ export interface Meta {
   ativo?: boolean;
 }
 
-// ROTA: Listar metas
+// ROTA GET: Listar metas
 export async function listarMetas(idAscora: string): Promise<Meta[]> {
-  console.log('🔵 Backend - Listar metas para id_ascora:', idAscora);
+  console.log('🔵 Backend - GET Listar metas para id_ascora:', idAscora);
   
   // TODO: Implementar lógica de busca no banco de dados
+  await new Promise(resolve => setTimeout(resolve, 300));
   
   return [];
 }

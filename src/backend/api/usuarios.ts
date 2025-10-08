@@ -16,12 +16,14 @@ export interface Usuario {
   ativo?: boolean;
 }
 
-// ROTA: Listar usuários
+// ROTA GET: Listar usuários
 export async function listarUsuarios(idAscora: string): Promise<Usuario[]> {
-  // TODO: Implementar lógica de busca no banco de dados
-  console.log('🔵 Backend - Listar usuários para id_ascora:', idAscora);
+  console.log('🔵 Backend - GET Listar usuários para id_ascora:', idAscora);
   
-  // Retorno simulado de sucesso
+  // TODO: Implementar lógica de busca no banco de dados
+  // Simulação de retorno do banco
+  await new Promise(resolve => setTimeout(resolve, 300));
+  
   return [];
 }
 

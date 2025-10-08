@@ -16,6 +16,9 @@ import {
 import {
   listarLinks, cadastrarLink, editarLink, excluirLink
 } from '@/backend/api/links';
+import {
+  listarPremiacoes, cadastrarPremiacao, editarPremiacao, excluirPremiacao
+} from '@/backend/api/premiacoes';
 
 // Hook para Metas
 export const useMetas = () => {
@@ -494,5 +497,101 @@ export const useLinks = () => {
     createLink: createMutation.mutate,
     updateLink: updateMutation.mutate,
     deleteLink: deleteMutation.mutate,
+  };
+};
+
+// Hook para Premiações
+export const usePremiacoes = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { data: idAscora } = useIdAscora();
+
+  const query = useQuery({
+    queryKey: ['premiacoes', idAscora],
+    queryFn: async () => {
+      if (!idAscora) return [];
+      return await listarPremiacoes(idAscora);
+    },
+    enabled: !!idAscora,
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (premiacao: any) => {
+      if (!idAscora) {
+        throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
+      }
+      
+      const premiacaoComIdAscora = { ...premiacao, id_ascora: idAscora };
+      const resultado = await cadastrarPremiacao(premiacaoComIdAscora);
+      
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao cadastrar premiação');
+      }
+      
+      return resultado.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['premiacoes'] });
+      toast({ title: 'Premiação cadastrada com sucesso!' });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: 'Erro ao cadastrar premiação', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, ...premiacao }: any) => {
+      const resultado = await editarPremiacao(id, premiacao);
+      
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao atualizar premiação');
+      }
+      
+      return resultado.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['premiacoes'] });
+      toast({ title: 'Premiação atualizada com sucesso!' });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: 'Erro ao atualizar premiação', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const resultado = await excluirPremiacao(id);
+      
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao excluir premiação');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['premiacoes'] });
+      toast({ title: 'Premiação removida com sucesso!' });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: 'Erro ao remover premiação', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+    },
+  });
+
+  return {
+    premiacoes: query.data || [],
+    isLoading: query.isLoading,
+    createPremiacao: createMutation.mutate,
+    updatePremiacao: updateMutation.mutate,
+    deletePremiacao: deleteMutation.mutate,
   };
 };

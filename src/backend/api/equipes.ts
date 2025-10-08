@@ -9,11 +9,12 @@ export interface Equipe {
   ativo?: boolean;
 }
 
-// ROTA: Listar equipes
+// ROTA GET: Listar equipes
 export async function listarEquipes(idAscora: string): Promise<Equipe[]> {
-  console.log('🔵 Backend - Listar equipes para id_ascora:', idAscora);
+  console.log('🔵 Backend - GET Listar equipes para id_ascora:', idAscora);
   
   // TODO: Implementar lógica de busca no banco de dados
+  await new Promise(resolve => setTimeout(resolve, 300));
   
   return [];
 }

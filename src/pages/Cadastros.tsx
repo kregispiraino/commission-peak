@@ -8,10 +8,14 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Users, Building2, ChevronRight, Target, Percent, Package, UserCircle, Link as LinkIcon, Trash2, Edit, Plus } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Textarea } from '@/components/ui/textarea';
+import { Users, Building2, ChevronRight, Target, Percent, Package, UserCircle, Link as LinkIcon, Trash2, Edit, Plus, Award, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUsuarios, useEmpresas, useEquipes } from '@/hooks/useCadastros';
-import { useMetas, useComissoes, useProdutos, useClientes, useLinks } from '@/hooks/useCadastrosExtended';
+import { useMetas, useComissoes, useProdutos, useClientes, useLinks, usePremiacoes } from '@/hooks/useCadastrosExtended';
+import { uploadFotoPremiacao } from '@/backend/api/premiacoes';
+import { SearchableSelect } from '@/components/SearchableSelect';
 
 export default function Cadastros() {
   const { toast } = useToast();
@@ -25,6 +29,7 @@ export default function Cadastros() {
   const { produtos, isLoading: loadingProdutos, createProduto, updateProduto, deleteProduto } = useProdutos();
   const { clientes, isLoading: loadingClientes, createCliente, updateCliente, deleteCliente } = useClientes();
   const { links, isLoading: loadingLinks, createLink, updateLink, deleteLink } = useLinks();
+  const { premiacoes, isLoading: loadingPremiacoes, createPremiacao, updatePremiacao, deletePremiacao } = usePremiacoes();
   
   // Form states
   const [newUsuario, setNewUsuario] = useState({ 
@@ -45,6 +50,22 @@ export default function Cadastros() {
   const [newProduto, setNewProduto] = useState({ empresa_id: '', nome: '', descricao: '', codigo: '', preco: '' });
   const [newCliente, setNewCliente] = useState({ empresa_id: '', nome: '', email: '', telefone: '', cpf_cnpj: '' });
   const [newLink, setNewLink] = useState({ titulo: '', url: '', vendedor_id: '' });
+  const [newPremiacao, setNewPremiacao] = useState({ descricao: '', foto_url: '', empresa_id: '', equipe_id: '' });
+  const [fotoPremiacao, setFotoPremiacao] = useState<File | null>(null);
+  const [searchTerms, setSearchTerms] = useState({
+    usuarios_empresa: '',
+    usuarios_equipe: '',
+    equipes_empresa: '',
+    metas_empresa: '',
+    metas_equipe: '',
+    comissoes_empresa: '',
+    comissoes_equipe: '',
+    produtos_empresa: '',
+    clientes_empresa: '',
+    links_vendedor: '',
+    premiacoes_empresa: '',
+    premiacoes_equipe: ''
+  });
   
   const [openSections, setOpenSections] = useState({
     usuarios: false,
@@ -54,7 +75,8 @@ export default function Cadastros() {
     comissoes: false,
     produtos: false,
     clientes: false,
-    links: false
+    links: false,
+    premiacoes: false
   });
 
   const [dialogOpen, setDialogOpen] = useState({
@@ -65,7 +87,8 @@ export default function Cadastros() {
     comissoes: false,
     produtos: false,
     clientes: false,
-    links: false
+    links: false,
+    premiacoes: false
   });
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -144,6 +167,15 @@ export default function Cadastros() {
             vendedor_id: item.vendedor_id || ''
           });
           break;
+        case 'premiacoes':
+          setNewPremiacao({
+            descricao: item.descricao || '',
+            foto_url: item.foto_url || '',
+            empresa_id: item.empresa_id || '',
+            equipe_id: item.equipe_id || ''
+          });
+          setFotoPremiacao(null);
+          break;
       }
     }
     setDialogOpen(prev => ({ ...prev, [section]: true }));
@@ -161,6 +193,8 @@ export default function Cadastros() {
     setNewProduto({ empresa_id: '', nome: '', descricao: '', codigo: '', preco: '' });
     setNewCliente({ empresa_id: '', nome: '', email: '', telefone: '', cpf_cnpj: '' });
     setNewLink({ titulo: '', url: '', vendedor_id: '' });
+    setNewPremiacao({ descricao: '', foto_url: '', empresa_id: '', equipe_id: '' });
+    setFotoPremiacao(null);
   };
 
   const confirmDelete = (type: string, id: string) => {
@@ -195,6 +229,9 @@ export default function Cadastros() {
         break;
       case 'link':
         await deleteLink(itemToDelete.id);
+        break;
+      case 'premiacao':
+        await deletePremiacao(itemToDelete.id);
         break;
     }
     
@@ -349,6 +386,45 @@ export default function Cadastros() {
     closeDialog('links');
   };
 
+  const handleCreatePremiacao = async () => {
+    if (!newPremiacao.descricao || !newPremiacao.empresa_id) {
+      toast({ title: "Erro", description: "Preencha a descrição e selecione a empresa", variant: "destructive" });
+      return;
+    }
+
+    let fotoUrl = newPremiacao.foto_url;
+    
+    // Upload da foto se houver
+    if (fotoPremiacao) {
+      const uploadResult = await uploadFotoPremiacao(fotoPremiacao);
+      if (uploadResult.success && uploadResult.url) {
+        fotoUrl = uploadResult.url;
+      } else {
+        toast({ title: "Erro", description: "Falha ao fazer upload da foto", variant: "destructive" });
+        return;
+      }
+    }
+
+    const premiacaoData = {
+      ...newPremiacao,
+      foto_url: fotoUrl,
+      equipe_id: newPremiacao.equipe_id || null
+    };
+
+    if (editingItem) {
+      await updatePremiacao({ id: editingItem.id, ...premiacaoData } as any);
+    } else {
+      await createPremiacao(premiacaoData as any);
+    }
+    closeDialog('premiacoes');
+  };
+
+  const handleFotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFotoPremiacao(e.target.files[0]);
+    }
+  };
+
   return (
     <div className="p-8 space-y-6">
       <div className="space-y-2">
@@ -439,21 +515,23 @@ export default function Cadastros() {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label>Empresa</Label>
-                        <Select value={newUsuario.empresa_id} onValueChange={(value) => setNewUsuario({ ...newUsuario, empresa_id: value })}>
-                          <SelectTrigger><SelectValue placeholder="Selecione a empresa" /></SelectTrigger>
-                          <SelectContent className="bg-background z-50">
-                            {empresas?.map(empresa => <SelectItem key={empresa.id} value={empresa.id}>{empresa.nome}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                          value={newUsuario.empresa_id}
+                          onValueChange={(value) => setNewUsuario({ ...newUsuario, empresa_id: value })}
+                          placeholder="Selecione a empresa"
+                          searchPlaceholder="Buscar empresa..."
+                          items={empresas?.map(e => ({ id: e.id!, label: e.nome })) || []}
+                        />
                       </div>
                       <div>
                         <Label>Equipe</Label>
-                        <Select value={newUsuario.equipe_id} onValueChange={(value) => setNewUsuario({ ...newUsuario, equipe_id: value })}>
-                          <SelectTrigger><SelectValue placeholder="Selecione a equipe" /></SelectTrigger>
-                          <SelectContent className="bg-background z-50">
-                            {equipes?.map(equipe => <SelectItem key={equipe.id} value={equipe.id}>{equipe.nome}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                          value={newUsuario.equipe_id}
+                          onValueChange={(value) => setNewUsuario({ ...newUsuario, equipe_id: value })}
+                          placeholder="Selecione a equipe"
+                          searchPlaceholder="Buscar equipe..."
+                          items={equipes?.map(e => ({ id: e.id!, label: e.nome })) || []}
+                        />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -630,12 +708,13 @@ export default function Cadastros() {
                     </div>
                     <div>
                       <Label>Empresa *</Label>
-                      <Select value={newEquipe.empresa_id} onValueChange={(value) => setNewEquipe({ ...newEquipe, empresa_id: value })}>
-                        <SelectTrigger><SelectValue placeholder="Selecione a empresa" /></SelectTrigger>
-                        <SelectContent className="bg-background z-50">
-                          {empresas?.map(empresa => <SelectItem key={empresa.id} value={empresa.id}>{empresa.nome}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <SearchableSelect
+                        value={newEquipe.empresa_id}
+                        onValueChange={(value) => setNewEquipe({ ...newEquipe, empresa_id: value })}
+                        placeholder="Selecione a empresa"
+                        searchPlaceholder="Buscar empresa..."
+                        items={empresas?.map(e => ({ id: e.id!, label: e.nome })) || []}
+                      />
                     </div>
                     <Button onClick={handleCreateEquipe} className="w-full bg-gradient-primary text-white">
                       {editingItem ? 'Atualizar' : 'Cadastrar'}
@@ -728,22 +807,24 @@ export default function Cadastros() {
                       {newMeta.tipo === 'empresa' ? (
                         <div>
                           <Label>Empresa *</Label>
-                          <Select value={newMeta.empresa_id} onValueChange={(value) => setNewMeta({ ...newMeta, empresa_id: value })}>
-                            <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                            <SelectContent className="bg-background z-50">
-                              {empresas?.map(empresa => <SelectItem key={empresa.id} value={empresa.id}>{empresa.nome}</SelectItem>)}
-                            </SelectContent>
-                          </Select>
+                          <SearchableSelect
+                            value={newMeta.empresa_id}
+                            onValueChange={(value) => setNewMeta({ ...newMeta, empresa_id: value })}
+                            placeholder="Selecione"
+                            searchPlaceholder="Buscar empresa..."
+                            items={empresas?.map(e => ({ id: e.id!, label: e.nome })) || []}
+                          />
                         </div>
                       ) : (
                         <div>
                           <Label>Equipe *</Label>
-                          <Select value={newMeta.equipe_id} onValueChange={(value) => setNewMeta({ ...newMeta, equipe_id: value })}>
-                            <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                            <SelectContent className="bg-background z-50">
-                              {equipes?.map(equipe => <SelectItem key={equipe.id} value={equipe.id}>{equipe.nome}</SelectItem>)}
-                            </SelectContent>
-                          </Select>
+                          <SearchableSelect
+                            value={newMeta.equipe_id}
+                            onValueChange={(value) => setNewMeta({ ...newMeta, equipe_id: value })}
+                            placeholder="Selecione"
+                            searchPlaceholder="Buscar equipe..."
+                            items={equipes?.map(e => ({ id: e.id!, label: e.nome })) || []}
+                          />
                         </div>
                       )}
                     </div>
@@ -840,22 +921,24 @@ export default function Cadastros() {
                       {newComissao.tipo === 'empresa' ? (
                         <div>
                           <Label>Empresa *</Label>
-                          <Select value={newComissao.empresa_id} onValueChange={(value) => setNewComissao({ ...newComissao, empresa_id: value })}>
-                            <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                            <SelectContent className="bg-background z-50">
-                              {empresas?.map(empresa => <SelectItem key={empresa.id} value={empresa.id}>{empresa.nome}</SelectItem>)}
-                            </SelectContent>
-                          </Select>
+                          <SearchableSelect
+                            value={newComissao.empresa_id}
+                            onValueChange={(value) => setNewComissao({ ...newComissao, empresa_id: value })}
+                            placeholder="Selecione"
+                            searchPlaceholder="Buscar empresa..."
+                            items={empresas?.map(e => ({ id: e.id!, label: e.nome })) || []}
+                          />
                         </div>
                       ) : (
                         <div>
                           <Label>Equipe *</Label>
-                          <Select value={newComissao.equipe_id} onValueChange={(value) => setNewComissao({ ...newComissao, equipe_id: value })}>
-                            <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                            <SelectContent className="bg-background z-50">
-                              {equipes?.map(equipe => <SelectItem key={equipe.id} value={equipe.id}>{equipe.nome}</SelectItem>)}
-                            </SelectContent>
-                          </Select>
+                          <SearchableSelect
+                            value={newComissao.equipe_id}
+                            onValueChange={(value) => setNewComissao({ ...newComissao, equipe_id: value })}
+                            placeholder="Selecione"
+                            searchPlaceholder="Buscar equipe..."
+                            items={equipes?.map(e => ({ id: e.id!, label: e.nome })) || []}
+                          />
                         </div>
                       )}
                     </div>
@@ -936,12 +1019,13 @@ export default function Cadastros() {
                   <div className="space-y-4">
                     <div>
                       <Label>Empresa *</Label>
-                      <Select value={newProduto.empresa_id} onValueChange={(value) => setNewProduto({ ...newProduto, empresa_id: value })}>
-                        <SelectTrigger><SelectValue placeholder="Selecione a empresa" /></SelectTrigger>
-                        <SelectContent className="bg-background z-50">
-                          {empresas?.map(empresa => <SelectItem key={empresa.id} value={empresa.id}>{empresa.nome}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <SearchableSelect
+                        value={newProduto.empresa_id}
+                        onValueChange={(value) => setNewProduto({ ...newProduto, empresa_id: value })}
+                        placeholder="Selecione a empresa"
+                        searchPlaceholder="Buscar empresa..."
+                        items={empresas?.map(e => ({ id: e.id!, label: e.nome })) || []}
+                      />
                     </div>
                     <div>
                       <Label>Nome do Produto *</Label>
@@ -1040,12 +1124,13 @@ export default function Cadastros() {
                   <div className="space-y-4">
                     <div>
                       <Label>Empresa *</Label>
-                      <Select value={newCliente.empresa_id} onValueChange={(value) => setNewCliente({ ...newCliente, empresa_id: value })}>
-                        <SelectTrigger><SelectValue placeholder="Selecione a empresa" /></SelectTrigger>
-                        <SelectContent className="bg-background z-50">
-                          {empresas?.map(empresa => <SelectItem key={empresa.id} value={empresa.id}>{empresa.nome}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <SearchableSelect
+                        value={newCliente.empresa_id}
+                        onValueChange={(value) => setNewCliente({ ...newCliente, empresa_id: value })}
+                        placeholder="Selecione a empresa"
+                        searchPlaceholder="Buscar empresa..."
+                        items={empresas?.map(e => ({ id: e.id!, label: e.nome })) || []}
+                      />
                     </div>
                     <div>
                       <Label>Nome do Cliente *</Label>
@@ -1154,12 +1239,13 @@ export default function Cadastros() {
                     </div>
                     <div>
                       <Label>Vendedor *</Label>
-                      <Select value={newLink.vendedor_id} onValueChange={(value) => setNewLink({ ...newLink, vendedor_id: value })}>
-                        <SelectTrigger><SelectValue placeholder="Selecione o vendedor" /></SelectTrigger>
-                        <SelectContent className="bg-background z-50">
-                          {usuarios?.filter(u => u.is_vendedor).map(usuario => <SelectItem key={usuario.id} value={usuario.id}>{usuario.nome}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <SearchableSelect
+                        value={newLink.vendedor_id}
+                        onValueChange={(value) => setNewLink({ ...newLink, vendedor_id: value })}
+                        placeholder="Selecione o vendedor"
+                        searchPlaceholder="Buscar vendedor..."
+                        items={usuarios?.filter(u => u.is_vendedor).map(u => ({ id: u.id!, label: u.nome })) || []}
+                      />
                     </div>
                     <Button onClick={handleCreateLink} className="w-full bg-gradient-primary text-white">
                       {editingItem ? 'Atualizar' : 'Cadastrar'}
@@ -1202,6 +1288,169 @@ export default function Cadastros() {
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">Nenhum link cadastrado</div>
+              )}
+            </div>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
+
+      {/* Premiações */}
+      <Collapsible open={openSections.premiacoes} onOpenChange={() => toggleSection('premiacoes')}>
+        <Card className="bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg overflow-hidden">
+          <CollapsibleTrigger className="w-full">
+            <div className="p-6 flex items-center justify-between hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <Award className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-semibold text-foreground">Premiações</h2>
+              </div>
+              <ChevronRight className={`w-5 h-5 transition-transform ${openSections.premiacoes ? 'rotate-90' : ''}`} />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="p-6 space-y-4">
+              <Dialog open={dialogOpen.premiacoes} onOpenChange={(open) => !open && closeDialog('premiacoes')}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => openDialog('premiacoes')} className="bg-gradient-primary text-white">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Cadastrar Nova Premiação
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>{editingItem ? 'Editar Premiação' : 'Nova Premiação'}</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Descrição *</Label>
+                      <Textarea 
+                        value={newPremiacao.descricao} 
+                        onChange={(e) => setNewPremiacao({ ...newPremiacao, descricao: e.target.value })} 
+                        placeholder="Descrição da premiação"
+                        rows={3}
+                      />
+                    </div>
+                    <div>
+                      <Label>Foto da Premiação</Label>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-4">
+                          <Input 
+                            type="file" 
+                            accept="image/*"
+                            onChange={handleFotoChange}
+                            className="flex-1"
+                          />
+                          <Button type="button" variant="outline" size="icon">
+                            <Upload className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        {(fotoPremiacao || newPremiacao.foto_url) && (
+                          <div className="mt-2">
+                            <img 
+                              src={fotoPremiacao ? URL.createObjectURL(fotoPremiacao) : newPremiacao.foto_url} 
+                              alt="Preview" 
+                              className="w-full h-40 object-cover rounded-md"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Empresa *</Label>
+                        <Select value={newPremiacao.empresa_id} onValueChange={(value) => setNewPremiacao({ ...newPremiacao, empresa_id: value })}>
+                          <SelectTrigger><SelectValue placeholder="Selecione a empresa" /></SelectTrigger>
+                          <SelectContent className="bg-background z-50">
+                            <Input 
+                              placeholder="Buscar empresa..." 
+                              value={searchTerms.premiacoes_empresa}
+                              onChange={(e) => setSearchTerms({ ...searchTerms, premiacoes_empresa: e.target.value })}
+                              className="mb-2"
+                            />
+                            <ScrollArea className="h-32">
+                              {empresas
+                                ?.filter(e => e.nome.toLowerCase().includes(searchTerms.premiacoes_empresa.toLowerCase()))
+                                .map(empresa => (
+                                  <SelectItem key={empresa.id} value={empresa.id}>{empresa.nome}</SelectItem>
+                                ))}
+                            </ScrollArea>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Equipe (Opcional)</Label>
+                        <Select value={newPremiacao.equipe_id} onValueChange={(value) => setNewPremiacao({ ...newPremiacao, equipe_id: value })}>
+                          <SelectTrigger><SelectValue placeholder="Selecione a equipe" /></SelectTrigger>
+                          <SelectContent className="bg-background z-50">
+                            <Input 
+                              placeholder="Buscar equipe..." 
+                              value={searchTerms.premiacoes_equipe}
+                              onChange={(e) => setSearchTerms({ ...searchTerms, premiacoes_equipe: e.target.value })}
+                              className="mb-2"
+                            />
+                            <ScrollArea className="h-32">
+                              {equipes
+                                ?.filter(e => e.nome.toLowerCase().includes(searchTerms.premiacoes_equipe.toLowerCase()))
+                                .map(equipe => (
+                                  <SelectItem key={equipe.id} value={equipe.id}>{equipe.nome}</SelectItem>
+                                ))}
+                            </ScrollArea>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <Button onClick={handleCreatePremiacao} className="w-full bg-gradient-primary text-white">
+                      {editingItem ? 'Atualizar' : 'Cadastrar'}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              {loadingPremiacoes ? (
+                <div className="text-center py-8">Carregando...</div>
+              ) : premiacoes && premiacoes.length > 0 ? (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Foto</TableHead>
+                        <TableHead>Descrição</TableHead>
+                        <TableHead>Empresa</TableHead>
+                        <TableHead>Equipe</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {premiacoes.map((premiacao) => (
+                        <TableRow key={premiacao.id}>
+                          <TableCell>
+                            {premiacao.foto_url ? (
+                              <img src={premiacao.foto_url} alt="Premiação" className="w-16 h-16 object-cover rounded-md" />
+                            ) : (
+                              <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center">
+                                <Award className="w-8 h-8 text-muted-foreground" />
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="font-medium max-w-xs">{premiacao.descricao}</TableCell>
+                          <TableCell>{(premiacao as any).empresa?.nome || '-'}</TableCell>
+                          <TableCell>{(premiacao as any).equipe?.nome || '-'}</TableCell>
+                          <TableCell className="text-right space-x-2">
+                            <Button variant="outline" size="sm" onClick={() => openDialog('premiacoes', premiacao)}>
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button variant="destructive" size="sm" onClick={() => confirmDelete('premiacao', premiacao.id)}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">Nenhuma premiação cadastrada</div>
               )}
             </div>
           </CollapsibleContent>

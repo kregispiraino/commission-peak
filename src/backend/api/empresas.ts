@@ -9,11 +9,12 @@ export interface Empresa {
   ativo?: boolean;
 }
 
-// ROTA: Listar empresas
+// ROTA GET: Listar empresas
 export async function listarEmpresas(idAscora: string): Promise<Empresa[]> {
-  console.log('🔵 Backend - Listar empresas para id_ascora:', idAscora);
+  console.log('🔵 Backend - GET Listar empresas para id_ascora:', idAscora);
   
   // TODO: Implementar lógica de busca no banco de dados
+  await new Promise(resolve => setTimeout(resolve, 300));
   
   return [];
 }

@@ -11,9 +11,10 @@ export interface Comissao {
   ativo?: boolean;
 }
 
-// ROTA: Listar comissões
+// ROTA GET: Listar comissões
 export async function listarComissoes(idAscora: string): Promise<Comissao[]> {
-  console.log('🔵 Backend - Listar comissões para id_ascora:', idAscora);
+  console.log('🔵 Backend - GET Listar comissões para id_ascora:', idAscora);
+  await new Promise(resolve => setTimeout(resolve, 300));
   
   // TODO: Implementar lógica de busca no banco de dados
   

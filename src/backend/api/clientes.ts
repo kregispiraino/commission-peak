@@ -12,9 +12,10 @@ export interface Cliente {
   ativo?: boolean;
 }
 
-// ROTA: Listar clientes
+// ROTA GET: Listar clientes
 export async function listarClientes(idAscora: string): Promise<Cliente[]> {
-  console.log('🔵 Backend - Listar clientes para id_ascora:', idAscora);
+  console.log('🔵 Backend - GET Listar clientes para id_ascora:', idAscora);
+  await new Promise(resolve => setTimeout(resolve, 300));
   
   // TODO: Implementar lógica de busca no banco de dados
   
