@@ -23,11 +23,6 @@ export default function Cadastros() {
   const { produtos, isLoading: loadingProdutos, createProduto, updateProduto, deleteProduto } = useProdutos();
   const { clientes, isLoading: loadingClientes, createCliente, updateCliente, deleteCliente } = useClientes();
   const { links, isLoading: loadingLinks, createLink, updateLink, deleteLink } = useLinks();
-
-  // Debug: verificar dados carregados
-  console.log('Usuários carregados:', usuarios?.length || 0);
-  console.log('Empresas carregadas:', empresas?.length || 0);
-  console.log('Equipes carregadas:', equipes?.length || 0);
   
   // Form states
   const [newUsuario, setNewUsuario] = useState({ 

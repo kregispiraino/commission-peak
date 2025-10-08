@@ -463,7 +463,7 @@ export const useLinks = () => {
         .from('links')
         .select(`
           *,
-          vendedor:usuarios(id, nome),
+          vendedor:profiles(id, nome),
           empresa:empresas(id, nome),
           equipe:equipes(id, nome)
         `)
