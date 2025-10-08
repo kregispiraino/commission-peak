@@ -27,7 +27,8 @@ export default function Cadastros() {
   // Form states
   const [newUsuario, setNewUsuario] = useState({ 
     nome: '', 
-    email: '', 
+    email: '',
+    senha: '',
     acesso: 'vendedor' as 'master' | 'administrador' | 'vendedor',
     empresa_id: '', 
     equipe_id: '', 
@@ -71,18 +72,21 @@ export default function Cadastros() {
   
   // Handler functions
   const handleCreateUsuario = async () => {
-    if (!newUsuario.nome || !newUsuario.email) {
-      toast({ title: "Erro", description: "Preencha todos os campos obrigatórios (Nome e Email)", variant: "destructive" });
+    if (!newUsuario.nome || !newUsuario.email || !newUsuario.senha) {
+      toast({ title: "Erro", description: "Preencha todos os campos obrigatórios (Nome, Email e Senha)", variant: "destructive" });
       return;
     }
     createUsuario({
       ...newUsuario,
+      empresa_id: newUsuario.empresa_id || null,
+      equipe_id: newUsuario.equipe_id || null,
       comissao_percentual: newUsuario.comissao_percentual ? parseFloat(newUsuario.comissao_percentual) : 0,
       meta_individual: newUsuario.meta_individual ? parseFloat(newUsuario.meta_individual) : 0
     } as any);
     setNewUsuario({ 
       nome: '', 
-      email: '', 
+      email: '',
+      senha: '',
       acesso: 'vendedor' as 'master' | 'administrador' | 'vendedor',
       empresa_id: '', 
       equipe_id: '', 
@@ -218,18 +222,29 @@ export default function Cadastros() {
                   />
                 </div>
               </div>
-              <div>
-                <Label>Nível de Acesso *</Label>
-                <Select value={newUsuario.acesso} onValueChange={(value: 'master' | 'administrador' | 'vendedor') => setNewUsuario({ ...newUsuario, acesso: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o nível de acesso" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background z-50">
-                    <SelectItem value="master">Master</SelectItem>
-                    <SelectItem value="administrador">Administrador</SelectItem>
-                    <SelectItem value="vendedor">Vendedor</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Senha *</Label>
+                  <Input 
+                    type="password"
+                    value={newUsuario.senha}
+                    onChange={(e) => setNewUsuario({ ...newUsuario, senha: e.target.value })}
+                    placeholder="Senha do usuário" 
+                  />
+                </div>
+                <div>
+                  <Label>Nível de Acesso *</Label>
+                  <Select value={newUsuario.acesso} onValueChange={(value: 'master' | 'administrador' | 'vendedor') => setNewUsuario({ ...newUsuario, acesso: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o nível de acesso" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      <SelectItem value="master">Master</SelectItem>
+                      <SelectItem value="administrador">Administrador</SelectItem>
+                      <SelectItem value="vendedor">Vendedor</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
