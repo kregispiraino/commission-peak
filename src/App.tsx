@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/Layout";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Lancamento from "./pages/Lancamento";
 import Comissoes from "./pages/Comissoes";
@@ -12,6 +13,7 @@ import Cadastros from "./pages/Cadastros";
 import Desenvolvedor from "./pages/Desenvolvedor";
 import Manuais from "./pages/Manuais";
 import Suporte from "./pages/Suporte";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,20 +24,91 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/lancamento" element={<Lancamento />} />
-            <Route path="/comissoes" element={<Comissoes />} />
-            <Route path="/geral" element={<Geral />} />
-            <Route path="/cadastros" element={<Cadastros />} />
-            <Route path="/desenvolvedor" element={<Desenvolvedor />} />
-            <Route path="/manuais" element={<Manuais />} />
-            <Route path="/suporte" element={<Suporte />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Index />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/lancamento"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Lancamento />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/comissoes"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Comissoes />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/geral"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Geral />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cadastros"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Cadastros />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/desenvolvedor"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Desenvolvedor />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/manuais"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Manuais />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/suporte"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Suporte />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

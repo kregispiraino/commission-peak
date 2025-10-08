@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { 
   Home, 
   PlusCircle, 
@@ -13,6 +13,8 @@ import {
   HeadphonesIcon
 } from "lucide-react";
 import ascoraIcon from "@/assets/ascora-icon.png";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 import {
   Sidebar,
@@ -56,8 +58,26 @@ const menuSections = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: 'Erro ao sair',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: 'Logout realizado com sucesso!',
+      });
+      navigate('/auth');
+    }
+  };
 
   const isActive = (path: string) => currentPath === path;
   const getNavClasses = ({ isActive }: { isActive: boolean }) =>
@@ -114,7 +134,10 @@ export function AppSidebar() {
 
         {/* Logout button at bottom */}
         <div className="mt-auto p-3 border-t border-glass-border">
-          <SidebarMenuButton className="w-full rounded-lg text-destructive hover:bg-destructive/10 hover:text-destructive">
+          <SidebarMenuButton 
+            onClick={handleLogout}
+            className="w-full rounded-lg text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
             <LogOut className="w-5 h-5" />
             <span className={`font-medium ${isCollapsed ? 'sr-only' : ''}`}>
               Sair
