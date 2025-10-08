@@ -99,11 +99,11 @@ export default function Lancamento() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Formulário de lançamento */}
-        <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl">
-          <div className="space-y-6">
+        <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl h-fit">
+          <div className="space-y-5">
             <h2 className="text-xl font-semibold text-foreground">Nova Venda</h2>
             
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="space-y-2">
                 <Label htmlFor="vendedor">Vendedor</Label>
                 <Popover open={openVendedor} onOpenChange={setOpenVendedor}>
@@ -366,19 +366,15 @@ export default function Lancamento() {
         </Dialog>
 
         {/* Aprovações pendentes */}
-        <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl">
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-foreground">Liberações de Lançamentos</h2>
-                <p className="text-muted-foreground text-sm">
-                  Aprovar ou negar lançamentos pendentes dos vendedores
-                </p>
-              </div>
-              <div className="flex gap-2">
+        <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl h-fit">
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-foreground">Liberações de Lançamentos</h2>
+            
+            <div className="flex justify-center">
+              <div className="inline-flex gap-2 p-2 bg-card/50 rounded-lg border border-border/50">
                 <Button 
                   size="sm" 
-                  className="bg-gradient-success text-white"
+                  className="bg-gradient-success text-white shadow-sm hover:shadow-md transition-all"
                   onClick={handleAprovarTodos}
                 >
                   <CheckCheck className="w-4 h-4 mr-1" />
@@ -387,7 +383,7 @@ export default function Lancamento() {
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  className="text-destructive border-destructive/20 hover:bg-destructive/10"
+                  className="text-destructive border-destructive/20 hover:bg-destructive/10 transition-all"
                   onClick={handleNegarTodos}
                 >
                   <X className="w-4 h-4 mr-1" />
@@ -396,7 +392,7 @@ export default function Lancamento() {
               </div>
             </div>
             
-            <ScrollArea className="h-[600px] pr-4">
+            <ScrollArea className="h-[420px] pr-4">
               <div className="space-y-3">
               {/* Mock pending approvals */}
               {[
