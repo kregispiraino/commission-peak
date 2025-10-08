@@ -1334,17 +1334,22 @@ export default function Cadastros() {
                     <div>
                       <Label>Foto da Premiação</Label>
                       <div className="space-y-2">
-                        <div className="flex items-center gap-4">
-                          <Input 
-                            type="file" 
-                            accept="image/*"
-                            onChange={handleFotoChange}
-                            className="flex-1"
-                          />
-                          <Button type="button" variant="outline" size="icon">
-                            <Upload className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        <input 
+                          id="foto-premiacao-input"
+                          type="file" 
+                          accept="image/*"
+                          onChange={handleFotoChange}
+                          className="hidden"
+                        />
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => document.getElementById('foto-premiacao-input')?.click()}
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          {fotoPremiacao ? 'Alterar Imagem' : 'Selecionar Imagem'}
+                        </Button>
                         {(fotoPremiacao || newPremiacao.foto_url) && (
                           <div className="mt-2">
                             <img 
