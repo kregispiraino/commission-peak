@@ -9,6 +9,7 @@ projeto/
 └── src/                 # Código fonte principal
     ├── backend/         # APIs e rotas simuladas
     │   └── api/        # Endpoints de cada módulo
+    │       ├── index.ts                 # Autenticação (login/logout)
     │       ├── usuarios.ts
     │       ├── empresas.ts
     │       ├── equipes.ts
@@ -23,6 +24,9 @@ projeto/
     │
     ├── components/      # Componentes React
     ├── pages/          # Páginas da aplicação
+    │   ├── Landing.tsx # Página inicial do site (antes do login)
+    │   ├── Auth.tsx    # Página de login
+    │   └── ...
     ├── hooks/          # React Hooks customizados
     └── ...
 ```
@@ -41,6 +45,33 @@ projeto/
 - Pontos de integração com banco de dados (TODO)
 
 ## 📡 Como Funciona
+
+### 0. Autenticação
+```
+[Usuário acessa o site]
+         ↓
+[Landing page é exibida]
+         ↓
+[Usuário clica em Login]
+         ↓
+[Frontend exibe tela de login]
+         ↓
+[Usuário insere email e senha]
+         ↓
+[Frontend envia para backend/api/index.ts]
+         ↓
+[Backend valida credenciais]
+         ↓
+[Backend retorna dados do usuário]
+         ↓
+[Frontend salva no localStorage]
+         ↓
+[Redireciona para /home]
+         ↓
+[ProtectedRoute verifica autenticação]
+         ↓
+[Usuário acessa sistema]
+```
 
 ### 1. Cadastrar Dados
 ```

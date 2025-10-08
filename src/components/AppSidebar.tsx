@@ -13,7 +13,6 @@ import {
   HeadphonesIcon
 } from "lucide-react";
 import ascoraIcon from "@/assets/ascora-icon.png";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 import {
@@ -33,7 +32,7 @@ const menuSections = [
   {
     label: "Menu Principal",
     items: [
-      { title: "Home", url: "/", icon: Home },
+      { title: "Home", url: "/home", icon: Home },
       { title: "Lançamento", url: "/lancamento", icon: PlusCircle },
       { title: "Comissões", url: "/comissoes", icon: BarChart3 },
     ]
@@ -64,18 +63,26 @@ export function AppSidebar() {
   const isCollapsed = state === "collapsed";
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        title: 'Erro ao sair',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } else {
+    try {
+      // Importa e chama a função de logout do backend
+      const { realizarLogout } = await import('@/backend/api/index');
+      await realizarLogout();
+      
+      // Limpa dados do localStorage
+      localStorage.removeItem('usuario_logado');
+      
       toast({
         title: 'Logout realizado com sucesso!',
       });
+      
       navigate('/auth');
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      toast({
+        title: 'Erro ao sair',
+        description: 'Ocorreu um erro ao tentar sair',
+        variant: 'destructive',
+      });
     }
   };
 

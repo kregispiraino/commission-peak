@@ -6,15 +6,23 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // TODO: Implementar verificação de autenticação real
-    // Por enquanto, simula usuário autenticado
-    console.log('🔵 Frontend - Verificando autenticação do usuário');
-    
-    // Simula delay de verificação
-    setTimeout(() => {
-      setIsAuthenticated(true); // Simula usuário autenticado
-      setLoading(false);
-    }, 500);
+    const verificarAutenticacao = async () => {
+      console.log('🔵 Frontend - Verificando autenticação do usuário');
+      
+      try {
+        const { verificarSessao } = await import('@/backend/api/index');
+        const resultado = await verificarSessao();
+        
+        setIsAuthenticated(resultado.autenticado);
+        setLoading(false);
+      } catch (error) {
+        console.error('Erro ao verificar autenticação:', error);
+        setIsAuthenticated(false);
+        setLoading(false);
+      }
+    };
+
+    verificarAutenticacao();
   }, []);
 
   if (loading) {

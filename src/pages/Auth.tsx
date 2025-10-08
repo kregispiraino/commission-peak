@@ -18,18 +18,45 @@ export default function Auth() {
     e.preventDefault();
     setLoading(true);
 
-    // TODO: Implementar lógica de autenticação real com o backend
     console.log('🔵 Frontend - Tentando fazer login:', { email });
     
-    // Simula autenticação
-    setTimeout(() => {
-      toast({
-        title: 'Login simulado realizado com sucesso!',
-        description: 'Conecte ao backend para autenticação real'
+    try {
+      // Importa a função de login do backend
+      const { realizarLogin } = await import('@/backend/api/index');
+      
+      // Chama a API de autenticação
+      const response = await realizarLogin({
+        email,
+        senha: password
       });
-      navigate('/');
+
+      if (response.success && response.usuario) {
+        // Salva dados do usuário no localStorage
+        localStorage.setItem('usuario_logado', JSON.stringify(response.usuario));
+        
+        toast({
+          title: 'Login realizado com sucesso!',
+          description: `Bem-vindo, ${response.usuario.nome}`
+        });
+        
+        navigate('/home');
+      } else {
+        toast({
+          title: 'Erro no login',
+          description: response.message || 'Credenciais inválidas',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
+      toast({
+        title: 'Erro no login',
+        description: 'Ocorreu um erro ao tentar fazer login',
+        variant: 'destructive'
+      });
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
