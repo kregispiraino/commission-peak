@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { SearchableSelect } from '@/components/SearchableSelect';
 import { PlusCircle, DollarSign, User, Calendar as CalendarIcon, Check, CheckCheck, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -29,13 +30,29 @@ const mockVendedores = [
 ];
 
 const mockClientes = [
-  'Tech Corp', 'Digital Solutions', 'InnovaWeb', 'Smart Systems', 'Cloud Services',
-  'Data Analytics', 'Web Masters', 'Mobile First', 'Cyber Security', 'AI Labs'
+  { id: '1', label: 'Tech Corp' },
+  { id: '2', label: 'Digital Solutions' },
+  { id: '3', label: 'InnovaWeb' },
+  { id: '4', label: 'Smart Systems' },
+  { id: '5', label: 'Cloud Services' },
+  { id: '6', label: 'Data Analytics' },
+  { id: '7', label: 'Web Masters' },
+  { id: '8', label: 'Mobile First' },
+  { id: '9', label: 'Cyber Security' },
+  { id: '10', label: 'AI Labs' }
 ];
 
 const mockProdutos = [
-  'Software License', 'Consultoria', 'Desenvolvimento Web', 'Suporte Técnico',
-  'Treinamento', 'Hospedagem', 'Design Gráfico', 'Marketing Digital', 'SEO', 'Analytics'
+  { id: '1', label: 'Software License' },
+  { id: '2', label: 'Consultoria' },
+  { id: '3', label: 'Desenvolvimento Web' },
+  { id: '4', label: 'Suporte Técnico' },
+  { id: '5', label: 'Treinamento' },
+  { id: '6', label: 'Hospedagem' },
+  { id: '7', label: 'Design Gráfico' },
+  { id: '8', label: 'Marketing Digital' },
+  { id: '9', label: 'SEO' },
+  { id: '10', label: 'Analytics' }
 ];
 
 export default function Lancamento() {
@@ -43,8 +60,6 @@ export default function Lancamento() {
   const { data: idAscora } = useIdAscora();
   const [date, setDate] = useState<Date>(new Date());
   const [openVendedor, setOpenVendedor] = useState(false);
-  const [openCliente, setOpenCliente] = useState(false);
-  const [openProduto, setOpenProduto] = useState(false);
   const [vendedor, setVendedor] = useState("");
   const [cliente, setCliente] = useState("");
   const [produto, setProduto] = useState("");
@@ -264,7 +279,7 @@ export default function Lancamento() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Formulário de lançamento */}
-        <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl h-fit">
+        <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl min-h-[650px] h-fit">
           <div className="space-y-5">
             <h2 className="text-xl font-semibold text-foreground">Nova Venda</h2>
             
@@ -372,100 +387,30 @@ export default function Lancamento() {
 
               <div className="space-y-2">
                 <Label htmlFor="cliente">Cliente</Label>
-                <Popover open={openCliente} onOpenChange={setOpenCliente}>
-                  <PopoverTrigger asChild>
-                    <div className="relative">
-                      <Input
-                        value={cliente}
-                        onChange={(e) => {
-                          setCliente(e.target.value);
-                          setOpenCliente(true);
-                        }}
-                        placeholder="Digite ou selecione o cliente"
-                        className="pr-10"
-                      />
-                    </div>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[400px] p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Buscar cliente..." value={cliente} onValueChange={setCliente} />
-                      <CommandList>
-                        <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
-                        <CommandGroup heading="Clientes Cadastrados">
-                          {mockClientes
-                            .filter((c) => c.toLowerCase().includes(cliente.toLowerCase()))
-                            .map((clienteItem) => (
-                              <CommandItem
-                                key={clienteItem}
-                                value={clienteItem}
-                                onSelect={(currentValue) => {
-                                  setCliente(currentValue);
-                                  setOpenCliente(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    cliente.toLowerCase() === clienteItem.toLowerCase() ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {clienteItem}
-                              </CommandItem>
-                            ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <SearchableSelect
+                  value={cliente}
+                  onValueChange={(value) => {
+                    const clienteSelecionado = mockClientes.find(c => c.id === value);
+                    setCliente(clienteSelecionado?.label || '');
+                  }}
+                  placeholder="Selecione o cliente"
+                  items={mockClientes}
+                  searchPlaceholder="Buscar cliente..."
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="produto">Produto/Serviço</Label>
-                <Popover open={openProduto} onOpenChange={setOpenProduto}>
-                  <PopoverTrigger asChild>
-                    <div className="relative">
-                      <Input
-                        value={produto}
-                        onChange={(e) => {
-                          setProduto(e.target.value);
-                          setOpenProduto(true);
-                        }}
-                        placeholder="Digite ou selecione o produto"
-                        className="pr-10"
-                      />
-                    </div>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[400px] p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Buscar produto..." value={produto} onValueChange={setProduto} />
-                      <CommandList>
-                        <CommandEmpty>Nenhum produto encontrado.</CommandEmpty>
-                        <CommandGroup heading="Produtos Cadastrados">
-                          {mockProdutos
-                            .filter((p) => p.toLowerCase().includes(produto.toLowerCase()))
-                            .map((produtoItem) => (
-                              <CommandItem
-                                key={produtoItem}
-                                value={produtoItem}
-                                onSelect={(currentValue) => {
-                                  setProduto(currentValue);
-                                  setOpenProduto(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    produto.toLowerCase() === produtoItem.toLowerCase() ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {produtoItem}
-                              </CommandItem>
-                            ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <SearchableSelect
+                  value={produto}
+                  onValueChange={(value) => {
+                    const produtoSelecionado = mockProdutos.find(p => p.id === value);
+                    setProduto(produtoSelecionado?.label || '');
+                  }}
+                  placeholder="Selecione o produto/serviço"
+                  items={mockProdutos}
+                  searchPlaceholder="Buscar produto..."
+                />
               </div>
             </div>
 
@@ -532,15 +477,14 @@ export default function Lancamento() {
         </Dialog>
 
         {/* Aprovações pendentes */}
-        <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl h-fit">
+        <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-xl min-h-[650px] h-fit">
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-foreground">Liberações de Lançamentos</h2>
             
-            <div className="flex justify-center">
-              <div className="inline-flex gap-2 p-2 bg-card/50 rounded-lg border border-border/50">
+            <div className="flex gap-2 w-full">
               <Button 
                 size="sm" 
-                className="bg-gradient-success text-white shadow-sm hover:shadow-md transition-all"
+                className="flex-1 bg-gradient-success text-white shadow-sm hover:shadow-md transition-all"
                 onClick={handleAprovarTodos}
                 disabled={isLoading || lancamentosPendentes.length === 0}
               >
@@ -550,14 +494,13 @@ export default function Lancamento() {
               <Button 
                 size="sm" 
                 variant="outline" 
-                className="text-destructive border-destructive/20 hover:bg-destructive/10 transition-all"
+                className="flex-1 text-destructive border-destructive/20 hover:bg-destructive/10 transition-all"
                 onClick={handleNegarTodos}
                 disabled={isLoading || lancamentosPendentes.length === 0}
               >
                 <X className="w-4 h-4 mr-1" />
                 Negar Todos
               </Button>
-              </div>
             </div>
             
             <ScrollArea className="h-[420px] pr-4">
