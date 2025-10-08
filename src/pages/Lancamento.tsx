@@ -22,27 +22,10 @@ import {
   negarTodosLancamentos,
   type Lancamento
 } from '@/backend/api/lancamentos';
+import { listarUsuarios, type Usuario } from '@/backend/api/usuarios';
+import { listarClientes, type Cliente } from '@/backend/api/clientes';
+import { listarProdutos, type Produto } from '@/backend/api/produtos';
 import { useIdAscora } from '@/hooks/useCadastros';
-
-// Mock data
-const mockVendedores = [
-  { id: '1', label: 'Ana Silva' },
-  { id: '2', label: 'Carlos Santos' },
-  { id: '3', label: 'Maria Costa' },
-  { id: '4', label: 'João Oliveira' },
-  { id: '5', label: 'Luiza Ferreira' },
-  { id: '6', label: 'Pedro Almeida' }
-];
-
-const mockClientes = [
-  'Tech Corp', 'Digital Solutions', 'InnovaWeb', 'Smart Systems', 'Cloud Services',
-  'Data Analytics', 'Web Masters', 'Mobile First', 'Cyber Security', 'AI Labs'
-];
-
-const mockProdutos = [
-  'Software License', 'Consultoria', 'Desenvolvimento Web', 'Suporte Técnico',
-  'Treinamento', 'Hospedagem', 'Design Gráfico', 'Marketing Digital', 'SEO', 'Analytics'
-];
 
 export default function Lancamento() {
   const { toast } = useToast();
@@ -58,13 +41,53 @@ export default function Lancamento() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [lancamentosPendentes, setLancamentosPendentes] = useState<Lancamento[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Estados para dados dos selects
+  const [vendedores, setVendedores] = useState<Array<{ id: string; label: string }>>([]);
+  const [clientes, setClientes] = useState<string[]>([]);
+  const [produtos, setProdutos] = useState<string[]>([]);
 
-  // Carregar lançamentos pendentes
+  // Carregar dados dos cadastros
   useEffect(() => {
     if (idAscora) {
+      carregarDadosCadastros();
       carregarLancamentos();
     }
   }, [idAscora]);
+
+  const carregarDadosCadastros = async () => {
+    if (!idAscora) return;
+    
+    try {
+      // Carregar vendedores (usuários)
+      const usuariosData = await listarUsuarios(idAscora);
+      const vendedoresFormatados = usuariosData
+        .filter(u => u.is_vendedor && u.ativo)
+        .map(u => ({ id: u.id || '', label: u.nome }));
+      setVendedores(vendedoresFormatados);
+
+      // Carregar clientes
+      const clientesData = await listarClientes(idAscora);
+      const clientesNomes = clientesData
+        .filter(c => c.ativo)
+        .map(c => c.nome);
+      setClientes(clientesNomes);
+
+      // Carregar produtos
+      const produtosData = await listarProdutos(idAscora);
+      const produtosNomes = produtosData
+        .filter(p => p.ativo)
+        .map(p => p.nome);
+      setProdutos(produtosNomes);
+    } catch (error) {
+      console.error('Erro ao carregar dados dos cadastros:', error);
+      toast({
+        title: "Aviso",
+        description: "Alguns dados de cadastro podem não estar disponíveis.",
+        variant: "default",
+      });
+    }
+  };
 
   const carregarLancamentos = async () => {
     if (!idAscora) return;
@@ -279,11 +302,11 @@ export default function Lancamento() {
                 <SearchableSelect
                   value={vendedor}
                   onValueChange={(value) => {
-                    const vendedorSelecionado = mockVendedores.find(v => v.id === value);
+                    const vendedorSelecionado = vendedores.find(v => v.id === value);
                     setVendedor(vendedorSelecionado?.label || '');
                   }}
                   placeholder="Selecione o vendedor"
-                  items={mockVendedores}
+                  items={vendedores}
                   searchPlaceholder="Buscar vendedor..."
                 />
               </div>
@@ -363,7 +386,7 @@ export default function Lancamento() {
                         <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
                         <CommandGroup heading="Clientes Cadastrados">
                           <ScrollArea className="h-32">
-                            {mockClientes
+                            {clientes
                               .filter((c) => c.toLowerCase().includes(cliente.toLowerCase()))
                               .map((clienteItem) => (
                                 <CommandItem
@@ -414,7 +437,7 @@ export default function Lancamento() {
                         <CommandEmpty>Nenhum produto encontrado.</CommandEmpty>
                         <CommandGroup heading="Produtos Cadastrados">
                           <ScrollArea className="h-32">
-                            {mockProdutos
+                            {produtos
                               .filter((p) => p.toLowerCase().includes(produto.toLowerCase()))
                               .map((produtoItem) => (
                                 <CommandItem
