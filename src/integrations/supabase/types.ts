@@ -413,8 +413,8 @@ export type Database = {
       }
       usuarios: {
         Row: {
+          acesso: Database["public"]["Enums"]["nivel_acesso"] | null
           ativo: boolean | null
-          cargo: string | null
           comissao_percentual: number | null
           created_at: string | null
           email: string | null
@@ -428,8 +428,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          acesso?: Database["public"]["Enums"]["nivel_acesso"] | null
           ativo?: boolean | null
-          cargo?: string | null
           comissao_percentual?: number | null
           created_at?: string | null
           email?: string | null
@@ -443,8 +443,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          acesso?: Database["public"]["Enums"]["nivel_acesso"] | null
           ativo?: boolean | null
-          cargo?: string | null
           comissao_percentual?: number | null
           created_at?: string | null
           email?: string | null
@@ -489,6 +489,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      nivel_acesso: "master" | "administrador" | "vendedor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -617,6 +618,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      nivel_acesso: ["master", "administrador", "vendedor"],
     },
   },
 } as const

@@ -28,8 +28,7 @@ export default function Cadastros() {
   const [newUsuario, setNewUsuario] = useState({ 
     nome: '', 
     email: '', 
-    senha: '',
-    cargo: '', 
+    acesso: 'vendedor' as 'master' | 'administrador' | 'vendedor',
     empresa_id: '', 
     equipe_id: '', 
     comissao_percentual: '',
@@ -72,8 +71,8 @@ export default function Cadastros() {
   
   // Handler functions
   const handleCreateUsuario = async () => {
-    if (!newUsuario.nome || !newUsuario.email || !newUsuario.senha) {
-      toast({ title: "Erro", description: "Preencha todos os campos obrigatórios (Nome, Email, Senha)", variant: "destructive" });
+    if (!newUsuario.nome || !newUsuario.email) {
+      toast({ title: "Erro", description: "Preencha todos os campos obrigatórios (Nome e Email)", variant: "destructive" });
       return;
     }
     createUsuario({
@@ -84,8 +83,7 @@ export default function Cadastros() {
     setNewUsuario({ 
       nome: '', 
       email: '', 
-      senha: '',
-      cargo: '', 
+      acesso: 'vendedor' as 'master' | 'administrador' | 'vendedor',
       empresa_id: '', 
       equipe_id: '', 
       comissao_percentual: '',
@@ -220,24 +218,18 @@ export default function Cadastros() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Senha *</Label>
-                  <Input 
-                    type="password"
-                    value={newUsuario.senha}
-                    onChange={(e) => setNewUsuario({ ...newUsuario, senha: e.target.value })}
-                    placeholder="Senha do usuário" 
-                  />
-                </div>
-                <div>
-                  <Label>Cargo</Label>
-                  <Input 
-                    value={newUsuario.cargo}
-                    onChange={(e) => setNewUsuario({ ...newUsuario, cargo: e.target.value })}
-                    placeholder="Cargo" 
-                  />
-                </div>
+              <div>
+                <Label>Nível de Acesso *</Label>
+                <Select value={newUsuario.acesso} onValueChange={(value: 'master' | 'administrador' | 'vendedor') => setNewUsuario({ ...newUsuario, acesso: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o nível de acesso" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50">
+                    <SelectItem value="master">Master</SelectItem>
+                    <SelectItem value="administrador">Administrador</SelectItem>
+                    <SelectItem value="vendedor">Vendedor</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -314,9 +306,9 @@ export default function Cadastros() {
                         <p className="font-medium text-foreground">{usuario.nome}</p>
                         <p className="text-sm text-muted-foreground">{usuario.email}</p>
                         <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
-                          {usuario.cargo && <span>Cargo: {usuario.cargo}</span>}
-                          {usuario.comissao_percentual && <span>Comissão: {usuario.comissao_percentual}%</span>}
-                          {usuario.meta_individual && <span>Meta: R$ {usuario.meta_individual}</span>}
+                          {usuario.acesso && <span>Acesso: {usuario.acesso}</span>}
+                          {usuario.comissao_percentual > 0 && <span>Comissão: {usuario.comissao_percentual}%</span>}
+                          {usuario.meta_individual > 0 && <span>Meta: R$ {usuario.meta_individual}</span>}
                         </div>
                       </div>
                       <Button variant="destructive" size="sm" onClick={() => deleteUsuario(usuario.id)}>
