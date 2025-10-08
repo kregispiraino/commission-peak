@@ -23,6 +23,11 @@ export default function Cadastros() {
   const { produtos, isLoading: loadingProdutos, createProduto, updateProduto, deleteProduto } = useProdutos();
   const { clientes, isLoading: loadingClientes, createCliente, updateCliente, deleteCliente } = useClientes();
   const { links, isLoading: loadingLinks, createLink, updateLink, deleteLink } = useLinks();
+
+  // Debug: verificar dados carregados
+  console.log('Usuários carregados:', usuarios?.length || 0);
+  console.log('Empresas carregadas:', empresas?.length || 0);
+  console.log('Equipes carregadas:', equipes?.length || 0);
   
   // Form states
   const [newUsuario, setNewUsuario] = useState({ 
@@ -251,12 +256,16 @@ export default function Cadastros() {
                   <Label>Empresa</Label>
                   <Select value={newUsuario.empresa_id} onValueChange={(value) => setNewUsuario({ ...newUsuario, empresa_id: value })}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione a empresa" />
+                      <SelectValue placeholder={loadingEmpresas ? "Carregando..." : empresas?.length > 0 ? "Selecione a empresa" : "Nenhuma empresa cadastrada"} />
                     </SelectTrigger>
                     <SelectContent className="bg-background z-50">
-                      {empresas?.map(empresa => (
-                        <SelectItem key={empresa.id} value={empresa.id}>{empresa.nome}</SelectItem>
-                      ))}
+                      {empresas && empresas.length > 0 ? (
+                        empresas.map(empresa => (
+                          <SelectItem key={empresa.id} value={empresa.id}>{empresa.nome}</SelectItem>
+                        ))
+                      ) : (
+                        <div className="p-2 text-sm text-muted-foreground">Cadastre uma empresa primeiro</div>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -264,12 +273,16 @@ export default function Cadastros() {
                   <Label>Equipe</Label>
                   <Select value={newUsuario.equipe_id} onValueChange={(value) => setNewUsuario({ ...newUsuario, equipe_id: value })}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione a equipe" />
+                      <SelectValue placeholder={loadingEquipes ? "Carregando..." : equipes?.length > 0 ? "Selecione a equipe" : "Nenhuma equipe cadastrada"} />
                     </SelectTrigger>
                     <SelectContent className="bg-background z-50">
-                      {equipes?.map(equipe => (
-                        <SelectItem key={equipe.id} value={equipe.id}>{equipe.nome}</SelectItem>
-                      ))}
+                      {equipes && equipes.length > 0 ? (
+                        equipes.map(equipe => (
+                          <SelectItem key={equipe.id} value={equipe.id}>{equipe.nome}</SelectItem>
+                        ))
+                      ) : (
+                        <div className="p-2 text-sm text-muted-foreground">Cadastre uma equipe primeiro</div>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
