@@ -25,7 +25,17 @@ export default function Cadastros() {
   const { links, isLoading: loadingLinks, createLink, updateLink, deleteLink } = useLinks();
   
   // Form states
-  const [newUsuario, setNewUsuario] = useState({ nome: '', email: '', cargo: '', empresa_id: '', equipe_id: '', is_vendedor: true });
+  const [newUsuario, setNewUsuario] = useState({ 
+    nome: '', 
+    email: '', 
+    senha: '',
+    cargo: '', 
+    empresa_id: '', 
+    equipe_id: '', 
+    comissao_percentual: '',
+    meta_individual: '',
+    is_vendedor: true 
+  });
   const [newEmpresa, setNewEmpresa] = useState({ nome: '', cnpj: '' });
   const [newEquipe, setNewEquipe] = useState({ nome: '', descricao: '', empresa_id: '', lider_id: '' });
   const [newMeta, setNewMeta] = useState({ titulo: '', descricao: '', tipo: 'empresa', valor_alvo: '', data_inicio: '', data_fim: '', empresa_id: '', equipe_id: '' });
@@ -62,12 +72,26 @@ export default function Cadastros() {
   
   // Handler functions
   const handleCreateUsuario = async () => {
-    if (!newUsuario.nome || !newUsuario.email) {
-      toast({ title: "Erro", description: "Preencha todos os campos obrigatórios", variant: "destructive" });
+    if (!newUsuario.nome || !newUsuario.email || !newUsuario.senha) {
+      toast({ title: "Erro", description: "Preencha todos os campos obrigatórios (Nome, Email, Senha)", variant: "destructive" });
       return;
     }
-    createUsuario(newUsuario as any);
-    setNewUsuario({ nome: '', email: '', cargo: '', empresa_id: '', equipe_id: '', is_vendedor: true });
+    createUsuario({
+      ...newUsuario,
+      comissao_percentual: newUsuario.comissao_percentual ? parseFloat(newUsuario.comissao_percentual) : 0,
+      meta_individual: newUsuario.meta_individual ? parseFloat(newUsuario.meta_individual) : 0
+    } as any);
+    setNewUsuario({ 
+      nome: '', 
+      email: '', 
+      senha: '',
+      cargo: '', 
+      empresa_id: '', 
+      equipe_id: '', 
+      comissao_percentual: '',
+      meta_individual: '',
+      is_vendedor: true 
+    });
   };
   
   const handleCreateEmpresa = async () => {
@@ -160,6 +184,152 @@ export default function Cadastros() {
           Gerencie suas informações e configurações do sistema
         </p>
       </div>
+
+      {/* Usuários */}
+      <Collapsible open={openSections.usuarios} onOpenChange={() => toggleSection('usuarios')}>
+        <Card className="bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg overflow-hidden">
+          <CollapsibleTrigger className="w-full">
+            <div className="p-6 flex items-center justify-between hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <UserCircle className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-semibold text-foreground">Usuários</h2>
+              </div>
+              <ChevronRight className={`w-5 h-5 transition-transform ${openSections.usuarios ? 'rotate-90' : ''}`} />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-6 pb-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Nome *</Label>
+                  <Input 
+                    value={newUsuario.nome}
+                    onChange={(e) => setNewUsuario({ ...newUsuario, nome: e.target.value })}
+                    placeholder="Nome completo" 
+                  />
+                </div>
+                <div>
+                  <Label>Email *</Label>
+                  <Input 
+                    type="email"
+                    value={newUsuario.email}
+                    onChange={(e) => setNewUsuario({ ...newUsuario, email: e.target.value })}
+                    placeholder="email@empresa.com" 
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Senha *</Label>
+                  <Input 
+                    type="password"
+                    value={newUsuario.senha}
+                    onChange={(e) => setNewUsuario({ ...newUsuario, senha: e.target.value })}
+                    placeholder="Senha do usuário" 
+                  />
+                </div>
+                <div>
+                  <Label>Cargo</Label>
+                  <Input 
+                    value={newUsuario.cargo}
+                    onChange={(e) => setNewUsuario({ ...newUsuario, cargo: e.target.value })}
+                    placeholder="Cargo" 
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Empresa</Label>
+                  <Select value={newUsuario.empresa_id} onValueChange={(value) => setNewUsuario({ ...newUsuario, empresa_id: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a empresa" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      {empresas?.map(empresa => (
+                        <SelectItem key={empresa.id} value={empresa.id}>{empresa.nome}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Equipe</Label>
+                  <Select value={newUsuario.equipe_id} onValueChange={(value) => setNewUsuario({ ...newUsuario, equipe_id: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a equipe" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      {equipes?.map(equipe => (
+                        <SelectItem key={equipe.id} value={equipe.id}>{equipe.nome}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Percentual de Comissão (%)</Label>
+                  <Input 
+                    type="number"
+                    step="0.01"
+                    value={newUsuario.comissao_percentual}
+                    onChange={(e) => setNewUsuario({ ...newUsuario, comissao_percentual: e.target.value })}
+                    placeholder="0.00" 
+                  />
+                </div>
+                <div>
+                  <Label>Meta Individual (R$)</Label>
+                  <Input 
+                    type="number"
+                    step="0.01"
+                    value={newUsuario.meta_individual}
+                    onChange={(e) => setNewUsuario({ ...newUsuario, meta_individual: e.target.value })}
+                    placeholder="0.00" 
+                  />
+                </div>
+              </div>
+              <Button onClick={handleCreateUsuario} className="w-full bg-gradient-primary text-white" disabled={loadingUsuarios}>
+                <Plus className="w-4 h-4 mr-2" />
+                Adicionar Usuário
+              </Button>
+
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar usuário..." 
+                  value={searchTerms.usuarios}
+                  onChange={(e) => setSearchTerms(prev => ({ ...prev, usuarios: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+
+              <ScrollArea className="h-[300px]">
+                <div className="space-y-3 pr-4">
+                  {usuarios?.filter(usuario => 
+                    usuario.nome.toLowerCase().includes(searchTerms.usuarios.toLowerCase())
+                  ).map((usuario) => (
+                    <div key={usuario.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
+                      <div className="flex-1">
+                        <p className="font-medium text-foreground">{usuario.nome}</p>
+                        <p className="text-sm text-muted-foreground">{usuario.email}</p>
+                        <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
+                          {usuario.cargo && <span>Cargo: {usuario.cargo}</span>}
+                          {usuario.comissao_percentual && <span>Comissão: {usuario.comissao_percentual}%</span>}
+                          {usuario.meta_individual && <span>Meta: R$ {usuario.meta_individual}</span>}
+                        </div>
+                      </div>
+                      <Button variant="destructive" size="sm" onClick={() => deleteUsuario(usuario.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Empresas */}
       <Collapsible open={openSections.empresas} onOpenChange={() => toggleSection('empresas')}>
@@ -263,7 +433,7 @@ export default function Cadastros() {
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a empresa" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-background z-50">
                       {empresas?.map(empresa => (
                         <SelectItem key={empresa.id} value={empresa.id}>{empresa.nome}</SelectItem>
                       ))}
@@ -305,89 +475,6 @@ export default function Cadastros() {
                         <p className="text-sm text-muted-foreground">{equipe.descricao}</p>
                       </div>
                       <Button variant="destructive" size="sm" onClick={() => deleteEquipe(equipe.id)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
-          </CollapsibleContent>
-        </Card>
-      </Collapsible>
-
-      {/* Usuários */}
-      <Collapsible open={openSections.usuarios} onOpenChange={() => toggleSection('usuarios')}>
-        <Card className="bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg overflow-hidden">
-          <CollapsibleTrigger className="w-full">
-            <div className="p-6 flex items-center justify-between hover:bg-accent/50 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                  <UserCircle className="w-4 h-4 text-white" />
-                </div>
-                <h2 className="text-xl font-semibold text-foreground">Usuários</h2>
-              </div>
-              <ChevronRight className={`w-5 h-5 transition-transform ${openSections.usuarios ? 'rotate-90' : ''}`} />
-            </div>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="px-6 pb-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Nome</Label>
-                  <Input 
-                    value={newUsuario.nome}
-                    onChange={(e) => setNewUsuario({ ...newUsuario, nome: e.target.value })}
-                    placeholder="Nome completo" 
-                  />
-                </div>
-                <div>
-                  <Label>Email</Label>
-                  <Input 
-                    value={newUsuario.email}
-                    onChange={(e) => setNewUsuario({ ...newUsuario, email: e.target.value })}
-                    placeholder="email@empresa.com" 
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Cargo</Label>
-                  <Input 
-                    value={newUsuario.cargo}
-                    onChange={(e) => setNewUsuario({ ...newUsuario, cargo: e.target.value })}
-                    placeholder="Cargo" 
-                  />
-                </div>
-                <div>
-                  <Label>Empresa</Label>
-                  <Select value={newUsuario.empresa_id} onValueChange={(value) => setNewUsuario({ ...newUsuario, empresa_id: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a empresa" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {empresas?.map(empresa => (
-                        <SelectItem key={empresa.id} value={empresa.id}>{empresa.nome}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <Button onClick={handleCreateUsuario} className="w-full bg-gradient-primary text-white" disabled={loadingUsuarios}>
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar Usuário
-              </Button>
-
-              <ScrollArea className="h-[300px]">
-                <div className="space-y-3 pr-4">
-                  {usuarios?.map((usuario) => (
-                    <div key={usuario.id} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
-                      <div>
-                        <p className="font-medium text-foreground">{usuario.nome}</p>
-                        <p className="text-sm text-muted-foreground">{usuario.email}</p>
-                        <p className="text-xs text-muted-foreground">{usuario.cargo}</p>
-                      </div>
-                      <Button variant="destructive" size="sm" onClick={() => deleteUsuario(usuario.id)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
