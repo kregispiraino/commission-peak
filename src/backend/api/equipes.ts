@@ -4,9 +4,7 @@
 export interface Equipe {
   id?: string;
   nome: string;
-  descricao?: string;
   empresa_id: string;
-  lider_id?: string;
   id_ascora?: string;
   ativo?: boolean;
 }

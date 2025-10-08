@@ -3,12 +3,8 @@
 
 export interface Meta {
   id?: string;
-  titulo: string;
-  descricao?: string;
   tipo: string;
   valor_alvo: number;
-  data_inicio?: string;
-  data_fim?: string;
   empresa_id?: string | null;
   equipe_id?: string | null;
   id_ascora?: string;

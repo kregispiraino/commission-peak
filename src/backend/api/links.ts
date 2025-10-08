@@ -5,11 +5,7 @@ export interface Link {
   id?: string;
   titulo: string;
   url: string;
-  descricao?: string;
-  categoria?: string;
-  vendedor_id?: string;
-  empresa_id?: string;
-  equipe_id?: string;
+  vendedor_id: string;
   id_ascora?: string;
   ativo?: boolean;
 }

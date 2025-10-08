@@ -3,11 +3,11 @@
 
 export interface Produto {
   id?: string;
+  empresa_id: string;
   nome: string;
   descricao?: string;
   codigo?: string;
   preco?: number | null;
-  categoria?: string;
   id_ascora?: string;
   ativo?: boolean;
 }

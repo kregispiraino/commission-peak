@@ -3,11 +3,11 @@
 
 export interface Cliente {
   id?: string;
+  empresa_id: string;
   nome: string;
   email?: string;
   telefone?: string;
   cpf_cnpj?: string;
-  endereco?: string;
   id_ascora?: string;
   ativo?: boolean;
 }

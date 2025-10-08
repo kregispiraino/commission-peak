@@ -3,10 +3,8 @@
 
 export interface Comissao {
   id?: string;
-  nome: string;
   tipo: string;
-  percentual?: number | null;
-  valor_fixo?: number | null;
+  percentual: number;
   empresa_id?: string | null;
   equipe_id?: string | null;
   id_ascora?: string;

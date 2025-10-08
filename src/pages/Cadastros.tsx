@@ -39,12 +39,12 @@ export default function Cadastros() {
     is_vendedor: true 
   });
   const [newEmpresa, setNewEmpresa] = useState({ nome: '', cnpj: '' });
-  const [newEquipe, setNewEquipe] = useState({ nome: '', descricao: '', empresa_id: '', lider_id: '' });
-  const [newMeta, setNewMeta] = useState({ titulo: '', descricao: '', tipo: 'empresa', valor_alvo: '', data_inicio: '', data_fim: '', empresa_id: '', equipe_id: '' });
-  const [newComissao, setNewComissao] = useState({ nome: '', tipo: 'empresa', percentual: '', valor_fixo: '', empresa_id: '', equipe_id: '' });
-  const [newProduto, setNewProduto] = useState({ nome: '', descricao: '', codigo: '', preco: '', categoria: '' });
-  const [newCliente, setNewCliente] = useState({ nome: '', email: '', telefone: '', cpf_cnpj: '', endereco: '' });
-  const [newLink, setNewLink] = useState({ titulo: '', url: '', descricao: '', categoria: '', vendedor_id: '', empresa_id: '', equipe_id: '' });
+  const [newEquipe, setNewEquipe] = useState({ nome: '', empresa_id: '' });
+  const [newMeta, setNewMeta] = useState({ tipo: 'empresa', valor_alvo: '', empresa_id: '', equipe_id: '' });
+  const [newComissao, setNewComissao] = useState({ tipo: 'empresa', percentual: '', empresa_id: '', equipe_id: '' });
+  const [newProduto, setNewProduto] = useState({ empresa_id: '', nome: '', descricao: '', codigo: '', preco: '' });
+  const [newCliente, setNewCliente] = useState({ empresa_id: '', nome: '', email: '', telefone: '', cpf_cnpj: '' });
+  const [newLink, setNewLink] = useState({ titulo: '', url: '', vendedor_id: '' });
   
   const [openSections, setOpenSections] = useState({
     usuarios: false,
@@ -100,60 +100,48 @@ export default function Cadastros() {
         case 'equipes':
           setNewEquipe({ 
             nome: item.nome || '', 
-            descricao: item.descricao || '', 
-            empresa_id: item.empresa_id || '', 
-            lider_id: item.lider_id || '' 
+            empresa_id: item.empresa_id || ''
           });
           break;
         case 'metas':
           setNewMeta({
-            titulo: item.titulo || '',
-            descricao: item.descricao || '',
             tipo: item.tipo || 'empresa',
             valor_alvo: item.valor_alvo?.toString() || '',
-            data_inicio: item.data_inicio || '',
-            data_fim: item.data_fim || '',
             empresa_id: item.empresa_id || '',
             equipe_id: item.equipe_id || ''
           });
           break;
         case 'comissoes':
           setNewComissao({
-            nome: item.nome || '',
             tipo: item.tipo || 'empresa',
             percentual: item.percentual?.toString() || '',
-            valor_fixo: item.valor_fixo?.toString() || '',
             empresa_id: item.empresa_id || '',
             equipe_id: item.equipe_id || ''
           });
           break;
         case 'produtos':
           setNewProduto({
+            empresa_id: item.empresa_id || '',
             nome: item.nome || '',
             descricao: item.descricao || '',
             codigo: item.codigo || '',
-            preco: item.preco?.toString() || '',
-            categoria: item.categoria || ''
+            preco: item.preco?.toString() || ''
           });
           break;
         case 'clientes':
           setNewCliente({
+            empresa_id: item.empresa_id || '',
             nome: item.nome || '',
             email: item.email || '',
             telefone: item.telefone || '',
-            cpf_cnpj: item.cpf_cnpj || '',
-            endereco: item.endereco || ''
+            cpf_cnpj: item.cpf_cnpj || ''
           });
           break;
         case 'links':
           setNewLink({
             titulo: item.titulo || '',
             url: item.url || '',
-            descricao: item.descricao || '',
-            categoria: item.categoria || '',
-            vendedor_id: item.vendedor_id || '',
-            empresa_id: item.empresa_id || '',
-            equipe_id: item.equipe_id || ''
+            vendedor_id: item.vendedor_id || ''
           });
           break;
       }
@@ -167,12 +155,12 @@ export default function Cadastros() {
     // Reset forms
     setNewUsuario({ nome: '', email: '', senha: '', acesso: 'vendedor', empresa_id: '', equipe_id: '', comissao_percentual: '', meta_individual: '', is_vendedor: true });
     setNewEmpresa({ nome: '', cnpj: '' });
-    setNewEquipe({ nome: '', descricao: '', empresa_id: '', lider_id: '' });
-    setNewMeta({ titulo: '', descricao: '', tipo: 'empresa', valor_alvo: '', data_inicio: '', data_fim: '', empresa_id: '', equipe_id: '' });
-    setNewComissao({ nome: '', tipo: 'empresa', percentual: '', valor_fixo: '', empresa_id: '', equipe_id: '' });
-    setNewProduto({ nome: '', descricao: '', codigo: '', preco: '', categoria: '' });
-    setNewCliente({ nome: '', email: '', telefone: '', cpf_cnpj: '', endereco: '' });
-    setNewLink({ titulo: '', url: '', descricao: '', categoria: '', vendedor_id: '', empresa_id: '', equipe_id: '' });
+    setNewEquipe({ nome: '', empresa_id: '' });
+    setNewMeta({ tipo: 'empresa', valor_alvo: '', empresa_id: '', equipe_id: '' });
+    setNewComissao({ tipo: 'empresa', percentual: '', empresa_id: '', equipe_id: '' });
+    setNewProduto({ empresa_id: '', nome: '', descricao: '', codigo: '', preco: '' });
+    setNewCliente({ empresa_id: '', nome: '', email: '', telefone: '', cpf_cnpj: '' });
+    setNewLink({ titulo: '', url: '', vendedor_id: '' });
   };
 
   const confirmDelete = (type: string, id: string) => {
@@ -268,8 +256,8 @@ export default function Cadastros() {
   };
   
   const handleCreateMeta = async () => {
-    if (!newMeta.titulo || !newMeta.valor_alvo) {
-      toast({ title: "Erro", description: "Preencha todos os campos obrigatórios", variant: "destructive" });
+    if (!newMeta.valor_alvo) {
+      toast({ title: "Erro", description: "Preencha o valor alvo", variant: "destructive" });
       return;
     }
     if (editingItem) {
@@ -292,24 +280,22 @@ export default function Cadastros() {
   };
   
   const handleCreateComissao = async () => {
-    if (!newComissao.nome) {
-      toast({ title: "Erro", description: "Preencha o nome da comissão", variant: "destructive" });
+    if (!newComissao.percentual) {
+      toast({ title: "Erro", description: "Preencha o percentual da comissão", variant: "destructive" });
       return;
     }
     if (editingItem) {
       await updateComissao({
         id: editingItem.id,
         ...newComissao,
-        percentual: newComissao.percentual ? parseFloat(newComissao.percentual) : null,
-        valor_fixo: newComissao.valor_fixo ? parseFloat(newComissao.valor_fixo) : null,
+        percentual: parseFloat(newComissao.percentual),
         empresa_id: newComissao.tipo === 'empresa' ? newComissao.empresa_id : null,
         equipe_id: newComissao.tipo === 'equipe' ? newComissao.equipe_id : null
       } as any);
     } else {
       await createComissao({
         ...newComissao,
-        percentual: newComissao.percentual ? parseFloat(newComissao.percentual) : null,
-        valor_fixo: newComissao.valor_fixo ? parseFloat(newComissao.valor_fixo) : null,
+        percentual: parseFloat(newComissao.percentual),
         empresa_id: newComissao.tipo === 'empresa' ? newComissao.empresa_id : null,
         equipe_id: newComissao.tipo === 'equipe' ? newComissao.equipe_id : null
       } as any);
@@ -318,8 +304,8 @@ export default function Cadastros() {
   };
   
   const handleCreateProduto = async () => {
-    if (!newProduto.nome) {
-      toast({ title: "Erro", description: "Preencha o nome do produto", variant: "destructive" });
+    if (!newProduto.empresa_id || !newProduto.nome) {
+      toast({ title: "Erro", description: "Preencha a empresa e o nome do produto", variant: "destructive" });
       return;
     }
     if (editingItem) {
@@ -338,8 +324,8 @@ export default function Cadastros() {
   };
   
   const handleCreateCliente = async () => {
-    if (!newCliente.nome) {
-      toast({ title: "Erro", description: "Preencha o nome do cliente", variant: "destructive" });
+    if (!newCliente.empresa_id || !newCliente.nome) {
+      toast({ title: "Erro", description: "Preencha a empresa e o nome do cliente", variant: "destructive" });
       return;
     }
     if (editingItem) {
@@ -351,8 +337,8 @@ export default function Cadastros() {
   };
   
   const handleCreateLink = async () => {
-    if (!newLink.titulo || !newLink.url) {
-      toast({ title: "Erro", description: "Preencha todos os campos obrigatórios", variant: "destructive" });
+    if (!newLink.titulo || !newLink.url || !newLink.vendedor_id) {
+      toast({ title: "Erro", description: "Preencha título, URL e vendedor", variant: "destructive" });
       return;
     }
     if (editingItem) {
@@ -651,10 +637,6 @@ export default function Cadastros() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div>
-                      <Label>Descrição</Label>
-                      <Input value={newEquipe.descricao} onChange={(e) => setNewEquipe({ ...newEquipe, descricao: e.target.value })} placeholder="Descrição da equipe" />
-                    </div>
                     <Button onClick={handleCreateEquipe} className="w-full bg-gradient-primary text-white">
                       {editingItem ? 'Atualizar' : 'Cadastrar'}
                     </Button>
@@ -671,7 +653,6 @@ export default function Cadastros() {
                       <TableRow>
                         <TableHead>Nome</TableHead>
                         <TableHead>Empresa</TableHead>
-                        <TableHead>Descrição</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -680,7 +661,6 @@ export default function Cadastros() {
                         <TableRow key={equipe.id}>
                           <TableCell className="font-medium">{equipe.nome}</TableCell>
                           <TableCell>{(equipe as any).empresa?.nome || '-'}</TableCell>
-                          <TableCell>{equipe.descricao || '-'}</TableCell>
                           <TableCell className="text-right space-x-2">
                             <Button variant="outline" size="sm" onClick={() => openDialog('equipes', equipe)}>
                               <Edit className="w-4 h-4" />
@@ -730,33 +710,13 @@ export default function Cadastros() {
                     <DialogTitle>{editingItem ? 'Editar Meta' : 'Nova Meta'}</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label>Título *</Label>
-                        <Input value={newMeta.titulo} onChange={(e) => setNewMeta({ ...newMeta, titulo: e.target.value })} placeholder="Título da meta" />
-                      </div>
-                      <div>
-                        <Label>Valor Alvo (R$) *</Label>
-                        <Input type="number" step="0.01" value={newMeta.valor_alvo} onChange={(e) => setNewMeta({ ...newMeta, valor_alvo: e.target.value })} />
-                      </div>
-                    </div>
                     <div>
-                      <Label>Descrição</Label>
-                      <Input value={newMeta.descricao} onChange={(e) => setNewMeta({ ...newMeta, descricao: e.target.value })} placeholder="Descrição" />
+                      <Label>Valor Alvo (R$) *</Label>
+                      <Input type="number" step="0.01" value={newMeta.valor_alvo} onChange={(e) => setNewMeta({ ...newMeta, valor_alvo: e.target.value })} placeholder="Valor da meta" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label>Data Início</Label>
-                        <Input type="date" value={newMeta.data_inicio} onChange={(e) => setNewMeta({ ...newMeta, data_inicio: e.target.value })} />
-                      </div>
-                      <div>
-                        <Label>Data Fim</Label>
-                        <Input type="date" value={newMeta.data_fim} onChange={(e) => setNewMeta({ ...newMeta, data_fim: e.target.value })} />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label>Tipo</Label>
+                        <Label>Tipo *</Label>
                         <Select value={newMeta.tipo} onValueChange={(value) => setNewMeta({ ...newMeta, tipo: value })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent className="bg-background z-50">
@@ -767,7 +727,7 @@ export default function Cadastros() {
                       </div>
                       {newMeta.tipo === 'empresa' ? (
                         <div>
-                          <Label>Empresa</Label>
+                          <Label>Empresa *</Label>
                           <Select value={newMeta.empresa_id} onValueChange={(value) => setNewMeta({ ...newMeta, empresa_id: value })}>
                             <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                             <SelectContent className="bg-background z-50">
@@ -777,7 +737,7 @@ export default function Cadastros() {
                         </div>
                       ) : (
                         <div>
-                          <Label>Equipe</Label>
+                          <Label>Equipe *</Label>
                           <Select value={newMeta.equipe_id} onValueChange={(value) => setNewMeta({ ...newMeta, equipe_id: value })}>
                             <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                             <SelectContent className="bg-background z-50">
@@ -801,20 +761,18 @@ export default function Cadastros() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Título</TableHead>
                         <TableHead>Valor Alvo</TableHead>
                         <TableHead>Tipo</TableHead>
-                        <TableHead>Período</TableHead>
+                        <TableHead>Empresa/Equipe</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {metas.map((meta) => (
                         <TableRow key={meta.id}>
-                          <TableCell className="font-medium">{meta.titulo}</TableCell>
-                          <TableCell>R$ {meta.valor_alvo}</TableCell>
+                          <TableCell className="font-medium">R$ {meta.valor_alvo}</TableCell>
                           <TableCell className="capitalize">{meta.tipo}</TableCell>
-                          <TableCell>{meta.data_inicio && meta.data_fim ? `${new Date(meta.data_inicio).toLocaleDateString()} - ${new Date(meta.data_fim).toLocaleDateString()}` : '-'}</TableCell>
+                          <TableCell>{meta.tipo === 'empresa' ? (meta as any).empresa?.nome : (meta as any).equipe?.nome || '-'}</TableCell>
                           <TableCell className="text-right space-x-2">
                             <Button variant="outline" size="sm" onClick={() => openDialog('metas', meta)}>
                               <Edit className="w-4 h-4" />
@@ -865,22 +823,12 @@ export default function Cadastros() {
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
-                      <Label>Nome *</Label>
-                      <Input value={newComissao.nome} onChange={(e) => setNewComissao({ ...newComissao, nome: e.target.value })} placeholder="Nome da comissão" />
+                      <Label>Percentual (%) *</Label>
+                      <Input type="number" step="0.01" value={newComissao.percentual} onChange={(e) => setNewComissao({ ...newComissao, percentual: e.target.value })} placeholder="Ex: 5" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label>Percentual (%)</Label>
-                        <Input type="number" step="0.01" value={newComissao.percentual} onChange={(e) => setNewComissao({ ...newComissao, percentual: e.target.value })} />
-                      </div>
-                      <div>
-                        <Label>Valor Fixo (R$)</Label>
-                        <Input type="number" step="0.01" value={newComissao.valor_fixo} onChange={(e) => setNewComissao({ ...newComissao, valor_fixo: e.target.value })} />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label>Tipo</Label>
+                        <Label>Tipo *</Label>
                         <Select value={newComissao.tipo} onValueChange={(value) => setNewComissao({ ...newComissao, tipo: value })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent className="bg-background z-50">
@@ -891,7 +839,7 @@ export default function Cadastros() {
                       </div>
                       {newComissao.tipo === 'empresa' ? (
                         <div>
-                          <Label>Empresa</Label>
+                          <Label>Empresa *</Label>
                           <Select value={newComissao.empresa_id} onValueChange={(value) => setNewComissao({ ...newComissao, empresa_id: value })}>
                             <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                             <SelectContent className="bg-background z-50">
@@ -901,7 +849,7 @@ export default function Cadastros() {
                         </div>
                       ) : (
                         <div>
-                          <Label>Equipe</Label>
+                          <Label>Equipe *</Label>
                           <Select value={newComissao.equipe_id} onValueChange={(value) => setNewComissao({ ...newComissao, equipe_id: value })}>
                             <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                             <SelectContent className="bg-background z-50">
@@ -925,20 +873,18 @@ export default function Cadastros() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Nome</TableHead>
                         <TableHead>Percentual</TableHead>
-                        <TableHead>Valor Fixo</TableHead>
                         <TableHead>Tipo</TableHead>
+                        <TableHead>Empresa/Equipe</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {comissoes.map((comissao) => (
                         <TableRow key={comissao.id}>
-                          <TableCell className="font-medium">{comissao.nome}</TableCell>
-                          <TableCell>{comissao.percentual ? `${comissao.percentual}%` : '-'}</TableCell>
-                          <TableCell>{comissao.valor_fixo ? `R$ ${comissao.valor_fixo}` : '-'}</TableCell>
+                          <TableCell className="font-medium">{comissao.percentual}%</TableCell>
                           <TableCell className="capitalize">{comissao.tipo}</TableCell>
+                          <TableCell>{comissao.tipo === 'empresa' ? (comissao as any).empresa?.nome : (comissao as any).equipe?.nome || '-'}</TableCell>
                           <TableCell className="text-right space-x-2">
                             <Button variant="outline" size="sm" onClick={() => openDialog('comissoes', comissao)}>
                               <Edit className="w-4 h-4" />
@@ -989,7 +935,16 @@ export default function Cadastros() {
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
-                      <Label>Nome *</Label>
+                      <Label>Empresa *</Label>
+                      <Select value={newProduto.empresa_id} onValueChange={(value) => setNewProduto({ ...newProduto, empresa_id: value })}>
+                        <SelectTrigger><SelectValue placeholder="Selecione a empresa" /></SelectTrigger>
+                        <SelectContent className="bg-background z-50">
+                          {empresas?.map(empresa => <SelectItem key={empresa.id} value={empresa.id}>{empresa.nome}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Nome do Produto *</Label>
                       <Input value={newProduto.nome} onChange={(e) => setNewProduto({ ...newProduto, nome: e.target.value })} placeholder="Nome do produto" />
                     </div>
                     <div>
@@ -1006,10 +961,6 @@ export default function Cadastros() {
                         <Input type="number" step="0.01" value={newProduto.preco} onChange={(e) => setNewProduto({ ...newProduto, preco: e.target.value })} />
                       </div>
                     </div>
-                    <div>
-                      <Label>Categoria</Label>
-                      <Input value={newProduto.categoria} onChange={(e) => setNewProduto({ ...newProduto, categoria: e.target.value })} placeholder="Categoria" />
-                    </div>
                     <Button onClick={handleCreateProduto} className="w-full bg-gradient-primary text-white">
                       {editingItem ? 'Atualizar' : 'Cadastrar'}
                     </Button>
@@ -1024,20 +975,20 @@ export default function Cadastros() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead>Empresa</TableHead>
                         <TableHead>Nome</TableHead>
                         <TableHead>Código</TableHead>
                         <TableHead>Preço</TableHead>
-                        <TableHead>Categoria</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {produtos.map((produto) => (
                         <TableRow key={produto.id}>
+                          <TableCell>{(produto as any).empresa?.nome || '-'}</TableCell>
                           <TableCell className="font-medium">{produto.nome}</TableCell>
                           <TableCell>{produto.codigo || '-'}</TableCell>
                           <TableCell>{produto.preco ? `R$ ${produto.preco}` : '-'}</TableCell>
-                          <TableCell>{produto.categoria || '-'}</TableCell>
                           <TableCell className="text-right space-x-2">
                             <Button variant="outline" size="sm" onClick={() => openDialog('produtos', produto)}>
                               <Edit className="w-4 h-4" />
@@ -1088,7 +1039,16 @@ export default function Cadastros() {
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
-                      <Label>Nome *</Label>
+                      <Label>Empresa *</Label>
+                      <Select value={newCliente.empresa_id} onValueChange={(value) => setNewCliente({ ...newCliente, empresa_id: value })}>
+                        <SelectTrigger><SelectValue placeholder="Selecione a empresa" /></SelectTrigger>
+                        <SelectContent className="bg-background z-50">
+                          {empresas?.map(empresa => <SelectItem key={empresa.id} value={empresa.id}>{empresa.nome}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Nome do Cliente *</Label>
                       <Input value={newCliente.nome} onChange={(e) => setNewCliente({ ...newCliente, nome: e.target.value })} placeholder="Nome do cliente" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -1105,10 +1065,6 @@ export default function Cadastros() {
                       <Label>CPF/CNPJ</Label>
                       <Input value={newCliente.cpf_cnpj} onChange={(e) => setNewCliente({ ...newCliente, cpf_cnpj: e.target.value })} placeholder="000.000.000-00" />
                     </div>
-                    <div>
-                      <Label>Endereço</Label>
-                      <Input value={newCliente.endereco} onChange={(e) => setNewCliente({ ...newCliente, endereco: e.target.value })} placeholder="Endereço completo" />
-                    </div>
                     <Button onClick={handleCreateCliente} className="w-full bg-gradient-primary text-white">
                       {editingItem ? 'Atualizar' : 'Cadastrar'}
                     </Button>
@@ -1123,6 +1079,7 @@ export default function Cadastros() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead>Empresa</TableHead>
                         <TableHead>Nome</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Telefone</TableHead>
@@ -1133,6 +1090,7 @@ export default function Cadastros() {
                     <TableBody>
                       {clientes.map((cliente) => (
                         <TableRow key={cliente.id}>
+                          <TableCell>{(cliente as any).empresa?.nome || '-'}</TableCell>
                           <TableCell className="font-medium">{cliente.nome}</TableCell>
                           <TableCell>{cliente.email || '-'}</TableCell>
                           <TableCell>{cliente.telefone || '-'}</TableCell>
@@ -1195,12 +1153,13 @@ export default function Cadastros() {
                       <Input value={newLink.url} onChange={(e) => setNewLink({ ...newLink, url: e.target.value })} placeholder="https://exemplo.com" />
                     </div>
                     <div>
-                      <Label>Descrição</Label>
-                      <Input value={newLink.descricao} onChange={(e) => setNewLink({ ...newLink, descricao: e.target.value })} placeholder="Descrição" />
-                    </div>
-                    <div>
-                      <Label>Categoria</Label>
-                      <Input value={newLink.categoria} onChange={(e) => setNewLink({ ...newLink, categoria: e.target.value })} placeholder="Categoria" />
+                      <Label>Vendedor *</Label>
+                      <Select value={newLink.vendedor_id} onValueChange={(value) => setNewLink({ ...newLink, vendedor_id: value })}>
+                        <SelectTrigger><SelectValue placeholder="Selecione o vendedor" /></SelectTrigger>
+                        <SelectContent className="bg-background z-50">
+                          {usuarios?.filter(u => u.is_vendedor).map(usuario => <SelectItem key={usuario.id} value={usuario.id}>{usuario.nome}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <Button onClick={handleCreateLink} className="w-full bg-gradient-primary text-white">
                       {editingItem ? 'Atualizar' : 'Cadastrar'}
@@ -1218,7 +1177,7 @@ export default function Cadastros() {
                       <TableRow>
                         <TableHead>Título</TableHead>
                         <TableHead>URL</TableHead>
-                        <TableHead>Categoria</TableHead>
+                        <TableHead>Vendedor</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -1227,7 +1186,7 @@ export default function Cadastros() {
                         <TableRow key={link.id}>
                           <TableCell className="font-medium">{link.titulo}</TableCell>
                           <TableCell className="max-w-xs truncate">{link.url}</TableCell>
-                          <TableCell>{link.categoria || '-'}</TableCell>
+                          <TableCell>{(link as any).vendedor?.nome || '-'}</TableCell>
                           <TableCell className="text-right space-x-2">
                             <Button variant="outline" size="sm" onClick={() => openDialog('links', link)}>
                               <Edit className="w-4 h-4" />
