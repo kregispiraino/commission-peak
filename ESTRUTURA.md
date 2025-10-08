@@ -18,7 +18,8 @@ projeto/
     │       ├── clientes.ts
     │       ├── links.ts
     │       ├── lancamentos.ts
-    │       └── home.ts       # Rotas do Dashboard (Home)
+    │       ├── home.ts                  # Rotas do Dashboard (Home)
+    │       └── dashboard_comissoes.ts   # Rotas do Dashboard de Comissões
     │
     ├── components/      # Componentes React
     ├── pages/          # Páginas da aplicação

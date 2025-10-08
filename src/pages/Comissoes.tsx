@@ -6,7 +6,27 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
+import {
+  buscarVendasHoje,
+  buscarResumoComissao,
+  buscarPosicaoRanking,
+  listarEmpresasComissoes,
+  listarEquipesComissoes,
+  buscarHistoricoComissoes,
+  buscarDetalhesVendasMes,
+  calcularTotalTrimestre,
+  calcularComissoesFiltradas,
+  buscarNivelAcessoComissoes,
+  type VendasHoje,
+  type ComissaoResumo,
+  type RankingInfo,
+  type EmpresaComissao,
+  type EquipeComissao,
+  type HistoricoMes,
+  type DetalheVenda,
+} from '@/backend/api/dashboard_comissoes';
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('pt-BR', {
@@ -15,63 +35,153 @@ const formatCurrency = (value: number) => {
   }).format(value);
 };
 
-// Mock data
-const salesData = [
-  { name: "Ana Silva", sales: 145000, avatar: "AS" },
-  { name: "Carlos Santos", sales: 132000, avatar: "CS" },
-  { name: "Maria Costa", sales: 98000, avatar: "MC" },
-];
-
-// Mock data para empresas
-const companiesData = [
-  { id: 'company1', name: 'TechCorp', commission: 12000, sales: 240000 },
-  { id: 'company2', name: 'InnovaSoft', commission: 8250, sales: 165000 },
-  { id: 'company3', name: 'DigitalMax', commission: 5000, sales: 100000 },
-];
-
-// Mock data para equipes
-const teamsData = [
-  { id: 'team1', name: 'Equipe A', commission: 10000, sales: 200000 },
-  { id: 'team2', name: 'Equipe B', commission: 7500, sales: 150000 },
-  { id: 'team3', name: 'Equipe C', commission: 4750, sales: 95000 },
-];
-
-// Mock data para vendas detalhadas por mês
-const salesDetailsByMonth: Record<string, Array<{id: string, description: string, value: number, date: string}>> = {
-  'Abril': [
-    { id: '1', description: 'Venda Sistema CRM - Empresa ABC', value: 8500, date: '2024-04-28' },
-    { id: '2', description: 'Licenças Software - Tech Solutions', value: 6200, date: '2024-04-25' },
-    { id: '3', description: 'Consultoria ERP - InnovaCorp', value: 4500, date: '2024-04-22' },
-    { id: '4', description: 'Manutenção Anual - Digital Plus', value: 3300, date: '2024-04-15' },
-  ],
-  'Março': [
-    { id: '5', description: 'Venda Sistema ERP - MegaCorp', value: 7800, date: '2024-03-30' },
-    { id: '6', description: 'Licenças Office - StartupXYZ', value: 5500, date: '2024-03-28' },
-    { id: '7', description: 'Consultoria BI - DataTech', value: 3900, date: '2024-03-20' },
-    { id: '8', description: 'Suporte Premium - CloudSys', value: 2600, date: '2024-03-12' },
-  ],
-  'Fevereiro': [
-    { id: '9', description: 'Venda Plataforma E-commerce', value: 9200, date: '2024-02-28' },
-    { id: '10', description: 'Licenças Antivírus - SecureIT', value: 6000, date: '2024-02-25' },
-    { id: '11', description: 'Implantação Sistema - LogisCorp', value: 4100, date: '2024-02-18' },
-    { id: '12', description: 'Treinamento Equipe - DevTeam', value: 2900, date: '2024-02-10' },
-  ],
-};
-
 export default function Comissoes() {
-  const [selectedCompanies, setSelectedCompanies] = useState<string[]>(companiesData.map(c => c.id));
-  const [selectedTeams, setSelectedTeams] = useState<string[]>(teamsData.map(t => t.id));
-  const [userRole] = useState('master'); // Mock user role
+  const { toast } = useToast();
+  
+  // Estados para dados do backend
+  const [vendasHoje, setVendasHoje] = useState<VendasHoje | null>(null);
+  const [resumoComissao, setResumoComissao] = useState<ComissaoResumo | null>(null);
+  const [rankingInfo, setRankingInfo] = useState<RankingInfo | null>(null);
+  const [companiesData, setCompaniesData] = useState<EmpresaComissao[]>([]);
+  const [teamsData, setTeamsData] = useState<EquipeComissao[]>([]);
+  const [historicoComissoes, setHistoricoComissoes] = useState<HistoricoMes[]>([]);
+  const [totalTrimestre, setTotalTrimestre] = useState<number>(0);
+  const [userRole, setUserRole] = useState<'master' | 'gerente' | 'vendedor'>('vendedor');
+  const [loading, setLoading] = useState(true);
+  
+  // Estados para filtros
+  const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
+  const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   const [expandedMonth, setExpandedMonth] = useState<string | null>(null);
+  
+  // Estados para detalhes de vendas por mês
+  const [salesDetailsByMonth, setSalesDetailsByMonth] = useState<Record<string, DetalheVenda[]>>({});
+
+  // Carregar dados iniciais
+  useEffect(() => {
+    carregarDadosIniciais();
+  }, []);
+
+  // Recalcular comissões quando filtros mudarem
+  useEffect(() => {
+    if (selectedCompanies.length > 0 || selectedTeams.length > 0) {
+      atualizarComissoesFiltradas();
+    }
+  }, [selectedCompanies, selectedTeams]);
+
+  // Carregar detalhes do mês quando expandido
+  useEffect(() => {
+    if (expandedMonth && !salesDetailsByMonth[expandedMonth]) {
+      carregarDetalhesVendasMes(expandedMonth);
+    }
+  }, [expandedMonth]);
+  
+  const carregarDadosIniciais = async () => {
+    console.log('🔵 Frontend - Carregando dados iniciais do Dashboard de Comissões');
+    setLoading(true);
+    
+    try {
+      // Buscar dados em paralelo
+      const [vendasRes, comissaoRes, rankingRes, empresasRes, equipesRes, historicoRes, trimestreRes, roleRes] = await Promise.all([
+        buscarVendasHoje(),
+        buscarResumoComissao(),
+        buscarPosicaoRanking(),
+        listarEmpresasComissoes(),
+        listarEquipesComissoes(),
+        buscarHistoricoComissoes(),
+        calcularTotalTrimestre(),
+        buscarNivelAcessoComissoes(),
+      ]);
+
+      if (vendasRes.success && vendasRes.data) {
+        setVendasHoje(vendasRes.data);
+      }
+
+      if (comissaoRes.success && comissaoRes.data) {
+        setResumoComissao(comissaoRes.data);
+      }
+
+      if (rankingRes.success && rankingRes.data) {
+        setRankingInfo(rankingRes.data);
+      }
+
+      if (empresasRes.success && empresasRes.data) {
+        setCompaniesData(empresasRes.data);
+        setSelectedCompanies(empresasRes.data.map(c => c.id));
+      }
+
+      if (equipesRes.success && equipesRes.data) {
+        setTeamsData(equipesRes.data);
+        setSelectedTeams(equipesRes.data.map(t => t.id));
+      }
+
+      if (historicoRes.success && historicoRes.data) {
+        setHistoricoComissoes(historicoRes.data);
+      }
+
+      if (trimestreRes.success && trimestreRes.data) {
+        setTotalTrimestre(trimestreRes.data.total);
+      }
+
+      if (roleRes.success && roleRes.data) {
+        setUserRole(roleRes.data.role);
+      }
+
+    } catch (error) {
+      console.error('Erro ao carregar dados do dashboard de comissões:', error);
+      toast({
+        title: "Erro ao carregar dados",
+        description: "Não foi possível carregar os dados de comissões.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const atualizarComissoesFiltradas = async () => {
+    console.log('🔵 Frontend - Atualizando comissões filtradas');
+    
+    try {
+      const response = await calcularComissoesFiltradas(selectedCompanies, selectedTeams);
+      
+      if (response.success && response.data) {
+        setResumoComissao(prev => prev ? {
+          ...prev,
+          comissao: response.data!.comissaoTotal,
+          vendasTotais: response.data!.vendasTotais,
+        } : null);
+      }
+    } catch (error) {
+      console.error('Erro ao calcular comissões filtradas:', error);
+    }
+  };
+
+  const carregarDetalhesVendasMes = async (mes: string) => {
+    console.log('🔵 Frontend - Carregando detalhes de vendas do mês:', mes);
+    
+    try {
+      const response = await buscarDetalhesVendasMes(mes);
+      
+      if (response.success && response.data) {
+        setSalesDetailsByMonth(prev => ({
+          ...prev,
+          [mes]: response.data!
+        }));
+      }
+    } catch (error) {
+      console.error('Erro ao carregar detalhes de vendas:', error);
+      toast({
+        title: "Erro ao carregar detalhes",
+        description: "Não foi possível carregar os detalhes das vendas.",
+        variant: "destructive",
+      });
+    }
+  };
   
   // Calcular dados filtrados
   const filteredCompaniesData = companiesData.filter(c => selectedCompanies.includes(c.id));
   const filteredTeamsData = teamsData.filter(t => selectedTeams.includes(t.id));
-  
-  const totalSales = filteredCompaniesData.reduce((acc, curr) => acc + curr.sales, 0);
-  const commission = filteredCompaniesData.reduce((acc, curr) => acc + curr.commission, 0);
-  const goalProgress = 82;
-  const ranking = 2;
 
   const toggleCompany = (companyId: string) => {
     setSelectedCompanies(prev => 
@@ -96,15 +206,6 @@ export default function Comissoes() {
   const selectAllTeams = () => {
     setSelectedTeams(teamsData.map(t => t.id));
   };
-  
-  // Histórico dos últimos 3 meses
-  const commissionHistory = [
-    { month: 'Abril', commission: 22500, sales: 450000 },
-    { month: 'Março', commission: 19800, sales: 396000 },
-    { month: 'Fevereiro', commission: 21200, sales: 424000 },
-  ];
-  
-  const quarterTotal = commissionHistory.reduce((acc, month) => acc + month.commission, 0);
 
   return (
     <div className="p-8 space-y-8">
@@ -238,32 +339,42 @@ export default function Comissoes() {
       )}
 
       {/* Vendas Hoje */}
-      <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-            <Award className="w-4 h-4 text-white" />
+      {loading ? (
+        <div className="text-center text-muted-foreground">Carregando...</div>
+      ) : (
+        <Card className="p-6 bg-gradient-glass border-glass-border backdrop-blur-xl shadow-lg">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+              <Award className="w-4 h-4 text-white" />
+            </div>
+            <h2 className="text-xl font-semibold text-foreground">Vendas Hoje</h2>
           </div>
-          <h2 className="text-xl font-semibold text-foreground">Vendas Hoje</h2>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center p-4 bg-primary/5 rounded-lg">
-            <DollarSign className="w-8 h-8 mx-auto mb-2 text-primary" />
-            <p className="text-2xl font-bold text-foreground">R$ 28.500</p>
-            <p className="text-sm text-muted-foreground">Total</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-4 bg-primary/5 rounded-lg">
+              <DollarSign className="w-8 h-8 mx-auto mb-2 text-primary" />
+              <p className="text-2xl font-bold text-foreground">
+                {vendasHoje ? formatCurrency(vendasHoje.total) : 'R$ 0'}
+              </p>
+              <p className="text-sm text-muted-foreground">Total</p>
+            </div>
+            <div className="text-center p-4 bg-success/5 rounded-lg">
+              <TrendingUp className="w-8 h-8 mx-auto mb-2 text-success" />
+              <p className="text-2xl font-bold text-foreground">
+                {vendasHoje?.quantidade || 0}
+              </p>
+              <p className="text-sm text-muted-foreground">Vendas</p>
+            </div>
+            <div className="text-center p-4 bg-muted/50 rounded-lg">
+              <Target className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+              <p className="text-2xl font-bold text-foreground">
+                {vendasHoje ? formatCurrency(vendasHoje.ticketMedio) : 'R$ 0'}
+              </p>
+              <p className="text-sm text-muted-foreground">Ticket Médio</p>
+            </div>
           </div>
-          <div className="text-center p-4 bg-success/5 rounded-lg">
-            <TrendingUp className="w-8 h-8 mx-auto mb-2 text-success" />
-            <p className="text-2xl font-bold text-foreground">12</p>
-            <p className="text-sm text-muted-foreground">Vendas</p>
-          </div>
-          <div className="text-center p-4 bg-muted/50 rounded-lg">
-            <Target className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-            <p className="text-2xl font-bold text-foreground">R$ 2.375</p>
-            <p className="text-sm text-muted-foreground">Ticket Médio</p>
-          </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       {/* Cards de resumo */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -271,9 +382,11 @@ export default function Comissoes() {
           <div className="flex items-center justify-between">
             <div className="space-y-2 flex-1">
               <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Comissão</p>
-              <h3 className="text-2xl font-bold text-foreground">{formatCurrency(commission)}</h3>
+              <h3 className="text-2xl font-bold text-foreground">
+                {resumoComissao ? formatCurrency(resumoComissao.comissao) : 'R$ 0'}
+              </h3>
               <p className="text-sm text-muted-foreground">
-                5% sobre vendas
+                {resumoComissao ? `${resumoComissao.percentual}% sobre vendas` : 'Carregando...'}
               </p>
             </div>
             <div className="w-16 h-16 bg-gradient-success rounded-xl flex items-center justify-center shadow-glow flex-shrink-0 ml-4">
@@ -286,9 +399,11 @@ export default function Comissoes() {
           <div className="flex items-center justify-between">
             <div className="space-y-2 flex-1">
               <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Ranking</p>
-              <h3 className="text-2xl font-bold text-foreground">{ranking}º Lugar</h3>
+              <h3 className="text-2xl font-bold text-foreground">
+                {rankingInfo ? `${rankingInfo.posicao}º Lugar` : 'Carregando...'}
+              </h3>
               <p className="text-sm text-primary">
-                Top {Math.round((ranking / 20) * 100)}%
+                {rankingInfo ? `Top ${Math.round((rankingInfo.posicao / rankingInfo.totalVendedores) * 100)}%` : ''}
               </p>
             </div>
             <div className="w-16 h-16 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow flex-shrink-0 ml-4">
@@ -306,7 +421,7 @@ export default function Comissoes() {
         </h2>
         
         <div className="space-y-3">
-          {commissionHistory.map((item, index) => (
+          {historicoComissoes.map((item, index) => (
             <Collapsible 
               key={index}
               open={expandedMonth === item.month}
@@ -361,9 +476,13 @@ export default function Comissoes() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-semibold text-foreground">Total do Trimestre</p>
-                <p className="text-sm text-muted-foreground">Fevereiro - Abril</p>
+                <p className="text-sm text-muted-foreground">
+                  {historicoComissoes.length > 0 
+                    ? `${historicoComissoes[historicoComissoes.length - 1].month} - ${historicoComissoes[0].month}`
+                    : 'Carregando...'}
+                </p>
               </div>
-              <p className="text-2xl font-bold text-primary">{formatCurrency(quarterTotal)}</p>
+              <p className="text-2xl font-bold text-primary">{formatCurrency(totalTrimestre)}</p>
             </div>
           </div>
         </div>
