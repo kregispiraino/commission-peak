@@ -33,7 +33,7 @@ export const useUsuarios = () => {
       if (!idAscora) return [];
       
       const { data, error } = await supabase
-        .from('usuarios')
+        .from('profiles')
         .select(`
           *,
           empresa:empresas(id, nome),
@@ -59,25 +59,30 @@ export const useUsuarios = () => {
           options: {
             data: {
               nome: usuario.nome,
+              id_ascora: idAscora
             }
           }
         });
         
         if (authError) throw authError;
+        
+        // A tabela profiles será criada automaticamente pelo trigger
+        // Agora precisamos atualizar com os dados adicionais
+        const { senha, ...usuarioData } = usuario;
+        
+        if (authData.user) {
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update(usuarioData)
+            .eq('id', authData.user.id);
+          
+          if (updateError) throw updateError;
+          
+          return authData.user;
+        }
       }
-
-      // Remove senha antes de inserir na tabela usuarios
-      const { senha, ...usuarioData } = usuario;
       
-      // Depois insere na tabela usuarios
-      const { data, error } = await supabase
-        .from('usuarios')
-        .insert([{ ...usuarioData, id_ascora: idAscora }])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      throw new Error('Email e senha são obrigatórios');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['usuarios'] });
@@ -94,9 +99,11 @@ export const useUsuarios = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...usuario }: any) => {
+      const { senha, ...usuarioData } = usuario;
+      
       const { data, error } = await supabase
-        .from('usuarios')
-        .update(usuario)
+        .from('profiles')
+        .update(usuarioData)
         .eq('id', id)
         .select()
         .single();
@@ -120,7 +127,7 @@ export const useUsuarios = () => {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('usuarios')
+        .from('profiles')
         .update({ ativo: false })
         .eq('id', id);
       

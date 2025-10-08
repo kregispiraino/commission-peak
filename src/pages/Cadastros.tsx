@@ -326,9 +326,26 @@ export default function Cadastros() {
                           {usuario.meta_individual > 0 && <span>Meta: R$ {usuario.meta_individual}</span>}
                         </div>
                       </div>
-                      <Button variant="destructive" size="sm" onClick={() => deleteUsuario(usuario.id)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => {
+                          setNewUsuario({
+                            nome: usuario.nome || '',
+                            email: usuario.email || '',
+                            senha: '',
+                            acesso: usuario.acesso || 'vendedor',
+                            empresa_id: usuario.empresa_id || '',
+                            equipe_id: usuario.equipe_id || '',
+                            comissao_percentual: usuario.comissao_percentual?.toString() || '',
+                            meta_individual: usuario.meta_individual?.toString() || '',
+                            is_vendedor: usuario.is_vendedor ?? true
+                          });
+                        }}>
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="destructive" size="sm" onClick={() => deleteUsuario(usuario.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>

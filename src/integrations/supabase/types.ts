@@ -188,13 +188,6 @@ export type Database = {
             referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "equipes_lider_id_fkey"
-            columns: ["lider_id"]
-            isOneToOne: false
-            referencedRelation: "usuarios"
-            referencedColumns: ["id"]
-          },
         ]
       }
       links: {
@@ -253,13 +246,6 @@ export type Database = {
             columns: ["equipe_id"]
             isOneToOne: false
             referencedRelation: "equipes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "links_vendedor_id_fkey"
-            columns: ["vendedor_id"]
-            isOneToOne: false
-            referencedRelation: "usuarios"
             referencedColumns: ["id"]
           },
         ]
@@ -368,30 +354,69 @@ export type Database = {
       }
       profiles: {
         Row: {
+          acesso: Database["public"]["Enums"]["nivel_acesso"] | null
+          ativo: boolean | null
+          comissao_percentual: number | null
           created_at: string | null
           email: string | null
+          empresa_id: string | null
+          equipe_id: string | null
           id: string
           id_ascora: string
+          is_vendedor: boolean | null
+          meta_individual: number | null
           nome: string | null
+          senha: string | null
           updated_at: string | null
         }
         Insert: {
+          acesso?: Database["public"]["Enums"]["nivel_acesso"] | null
+          ativo?: boolean | null
+          comissao_percentual?: number | null
           created_at?: string | null
           email?: string | null
+          empresa_id?: string | null
+          equipe_id?: string | null
           id: string
           id_ascora: string
+          is_vendedor?: boolean | null
+          meta_individual?: number | null
           nome?: string | null
+          senha?: string | null
           updated_at?: string | null
         }
         Update: {
+          acesso?: Database["public"]["Enums"]["nivel_acesso"] | null
+          ativo?: boolean | null
+          comissao_percentual?: number | null
           created_at?: string | null
           email?: string | null
+          empresa_id?: string | null
+          equipe_id?: string | null
           id?: string
           id_ascora?: string
+          is_vendedor?: boolean | null
+          meta_individual?: number | null
           nome?: string | null
+          senha?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_equipe_id_fkey"
+            columns: ["equipe_id"]
+            isOneToOne: false
+            referencedRelation: "equipes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -410,72 +435,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      usuarios: {
-        Row: {
-          acesso: Database["public"]["Enums"]["nivel_acesso"] | null
-          ativo: boolean | null
-          comissao_percentual: number | null
-          created_at: string | null
-          email: string | null
-          empresa_id: string | null
-          equipe_id: string | null
-          id: string
-          id_ascora: string
-          is_vendedor: boolean | null
-          meta_individual: number | null
-          nome: string
-          senha: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          acesso?: Database["public"]["Enums"]["nivel_acesso"] | null
-          ativo?: boolean | null
-          comissao_percentual?: number | null
-          created_at?: string | null
-          email?: string | null
-          empresa_id?: string | null
-          equipe_id?: string | null
-          id?: string
-          id_ascora: string
-          is_vendedor?: boolean | null
-          meta_individual?: number | null
-          nome: string
-          senha?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          acesso?: Database["public"]["Enums"]["nivel_acesso"] | null
-          ativo?: boolean | null
-          comissao_percentual?: number | null
-          created_at?: string | null
-          email?: string | null
-          empresa_id?: string | null
-          equipe_id?: string | null
-          id?: string
-          id_ascora?: string
-          is_vendedor?: boolean | null
-          meta_individual?: number | null
-          nome?: string
-          senha?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "usuarios_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "usuarios_equipe_id_fkey"
-            columns: ["equipe_id"]
-            isOneToOne: false
-            referencedRelation: "equipes"
-            referencedColumns: ["id"]
-          },
-        ]
       }
     }
     Views: {
