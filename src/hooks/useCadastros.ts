@@ -2,13 +2,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { 
   listarUsuarios, cadastrarUsuario, editarUsuario, excluirUsuario 
-} from '@/../../backend/api/usuarios';
+} from '@/backend/api/usuarios';
 import { 
   listarEmpresas, cadastrarEmpresa, editarEmpresa, excluirEmpresa 
-} from '@/../../backend/api/empresas';
+} from '@/backend/api/empresas';
 import { 
   listarEquipes, cadastrarEquipe, editarEquipe, excluirEquipe 
-} from '@/../../backend/api/equipes';
+} from '@/backend/api/equipes';
 
 // Hook para obter o ID Ascora do usuário logado
 export const useIdAscora = () => {

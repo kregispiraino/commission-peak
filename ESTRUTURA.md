@@ -6,19 +6,18 @@ Este projeto foi organizado separando claramente o **Frontend** e o **Backend** 
 
 ```
 projeto/
-├── backend/              # APIs e rotas do servidor
-│   ├── api/             # Endpoints de cada módulo
-│   │   ├── usuarios.ts
-│   │   ├── empresas.ts
-│   │   ├── equipes.ts
-│   │   ├── metas.ts
-│   │   ├── comissoes.ts
-│   │   ├── produtos.ts
-│   │   ├── clientes.ts
-│   │   └── links.ts
-│   └── README.md        # Documentação do backend
-│
-└── src/                 # Frontend React
+└── src/                 # Código fonte principal
+    ├── backend/         # APIs e rotas simuladas
+    │   └── api/        # Endpoints de cada módulo
+    │       ├── usuarios.ts
+    │       ├── empresas.ts
+    │       ├── equipes.ts
+    │       ├── metas.ts
+    │       ├── comissoes.ts
+    │       ├── produtos.ts
+    │       ├── clientes.ts
+    │       └── links.ts
+    │
     ├── components/      # Componentes React
     ├── pages/          # Páginas da aplicação
     ├── hooks/          # React Hooks customizados
@@ -27,13 +26,13 @@ projeto/
 
 ## 🔄 Fluxo de Dados
 
-### Frontend (src/)
+### Frontend (src/pages, src/components, src/hooks)
 - Interface do usuário
 - Formulários e validações
 - Chamadas às APIs do backend
 - Gerenciamento de estado local
 
-### Backend (backend/)
+### Backend (src/backend/api)
 - Rotas de API simuladas
 - Estrutura preparada para lógica de negócio
 - Pontos de integração com banco de dados (TODO)
@@ -136,7 +135,7 @@ projeto/
    ```
 
 2. **Implementar Lógica no Backend**
-   - Abrir arquivos em `backend/api/`
+   - Abrir arquivos em `src/backend/api/`
    - Substituir os `TODO` por código real
    - Conectar ao banco de dados
 
@@ -156,6 +155,7 @@ projeto/
 - Hooks customizados em `src/hooks/`
 - Componentes em `src/components/`
 - Páginas em `src/pages/`
+- APIs simuladas em `src/backend/api/`
 - Use TypeScript sempre que possível
 
 ### Backend

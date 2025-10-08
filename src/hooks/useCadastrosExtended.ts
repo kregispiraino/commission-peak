@@ -3,19 +3,19 @@ import { useToast } from '@/hooks/use-toast';
 import { useIdAscora } from './useCadastros';
 import {
   listarMetas, cadastrarMeta, editarMeta, excluirMeta
-} from '@/../../backend/api/metas';
+} from '@/backend/api/metas';
 import {
   listarComissoes, cadastrarComissao, editarComissao, excluirComissao
-} from '@/../../backend/api/comissoes';
+} from '@/backend/api/comissoes';
 import {
   listarProdutos, cadastrarProduto, editarProduto, excluirProduto
-} from '@/../../backend/api/produtos';
+} from '@/backend/api/produtos';
 import {
   listarClientes, cadastrarCliente, editarCliente, excluirCliente
-} from '@/../../backend/api/clientes';
+} from '@/backend/api/clientes';
 import {
   listarLinks, cadastrarLink, editarLink, excluirLink
-} from '@/../../backend/api/links';
+} from '@/backend/api/links';
 
 // Hook para Metas
 export const useMetas = () => {
