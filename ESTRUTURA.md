@@ -1,202 +1,149 @@
 # 📂 Estrutura do Projeto
 
-Este projeto foi organizado separando claramente o **Frontend** e o **Backend** para facilitar o desenvolvimento e manutenção.
+Este projeto utiliza **Lovable Cloud** (Supabase) como backend completo, com autenticação, banco de dados e lógica de negócio totalmente implementados.
 
 ## 🏗️ Arquitetura
 
 ```
 projeto/
-└── src/                 # Código fonte principal
-    ├── backend/         # APIs e rotas simuladas
-    │   └── api/        # Endpoints de cada módulo
+└── src/                        # Código fonte principal
+    ├── backend/                # APIs com lógica de negócio
+    │   └── api/               # Módulos de API
     │       ├── index.ts                 # Autenticação (login/logout)
-    │       ├── usuarios.ts
-    │       ├── empresas.ts
-    │       ├── equipes.ts
-    │       ├── metas.ts
-    │       ├── comissoes.ts
-    │       ├── produtos.ts
-    │       ├── clientes.ts
-    │       ├── links.ts
-    │       ├── lancamentos.ts
-    │       ├── home.ts                  # Rotas do Dashboard (Home)
-    │       └── dashboard_comissoes.ts   # Rotas do Dashboard de Comissões
+    │       ├── usuarios.ts              # CRUD de usuários
+    │       ├── empresas.ts              # CRUD de empresas
+    │       ├── equipes.ts               # CRUD de equipes
+    │       ├── metas.ts                 # CRUD de metas
+    │       ├── comissoes.ts             # CRUD de comissões
+    │       ├── produtos.ts              # CRUD de produtos
+    │       ├── clientes.ts              # CRUD de clientes
+    │       ├── links.ts                 # CRUD de links
+    │       ├── premiacoes.ts            # CRUD de premiações
+    │       ├── lancamentos.ts           # CRUD de lançamentos
+    │       ├── home.ts                  # Dados do Dashboard (Home)
+    │       └── dashboard_comissoes.ts   # Dashboard de Comissões
     │
-    ├── components/      # Componentes React
-    ├── pages/          # Páginas da aplicação
-    │   ├── Landing.tsx # Página inicial do site (antes do login)
-    │   ├── Auth.tsx    # Página de login
+    ├── components/             # Componentes React
+    ├── pages/                  # Páginas da aplicação
+    │   ├── Landing.tsx         # Página inicial (antes do login)
+    │   ├── Auth.tsx            # Autenticação
+    │   ├── Index.tsx           # Dashboard principal
+    │   ├── Cadastros.tsx       # Gestão de cadastros
+    │   ├── Lancamento.tsx      # Lançamentos de vendas
+    │   ├── Comissoes.tsx       # Dashboard de comissões
+    │   ├── Resultado.tsx       # Resultados e análises
     │   └── ...
-    ├── hooks/          # React Hooks customizados
+    ├── hooks/                  # React Hooks customizados
+    ├── integrations/
+    │   └── supabase/          # Integração Lovable Cloud
+    │       ├── client.ts       # Cliente Supabase (auto-gerado)
+    │       └── types.ts        # Tipos do banco (auto-gerado)
     └── ...
 ```
 
 ## 🔄 Fluxo de Dados
 
 ### Frontend (src/pages, src/components, src/hooks)
-- Interface do usuário
+- Interface do usuário com React + TypeScript
 - Formulários e validações
-- Chamadas às APIs do backend
-- Gerenciamento de estado local
+- React Query para gerenciamento de estado e cache
+- Integração com Lovable Cloud via Supabase client
 
-### Backend (src/backend/api)
-- Rotas de API simuladas
-- Estrutura preparada para lógica de negócio
-- Pontos de integração com banco de dados (TODO)
+### Backend (Lovable Cloud)
+- Banco de dados PostgreSQL com RLS (Row Level Security)
+- Autenticação real com Supabase Auth
+- Triggers e funções para lógica de negócio
+- APIs em `src/backend/api` fazem interface com o banco
 
 ## 📡 Como Funciona
 
-### 0. Autenticação
+### Autenticação
 ```
 [Usuário acessa o site]
          ↓
 [Landing page é exibida]
          ↓
-[Usuário clica em Login]
+[Usuário faz cadastro/login]
          ↓
-[Frontend exibe tela de login]
+[Supabase Auth valida credenciais]
          ↓
-[Usuário insere email e senha]
-         ↓
-[Frontend envia para backend/api/index.ts]
-         ↓
-[Backend valida credenciais]
-         ↓
-[Backend retorna dados do usuário]
-         ↓
-[Frontend salva no localStorage]
-         ↓
-[Redireciona para /home]
+[Session criada automaticamente]
          ↓
 [ProtectedRoute verifica autenticação]
          ↓
-[Usuário acessa sistema]
+[Usuário acessa o dashboard]
 ```
 
-### 1. Cadastrar Dados
+### Operações CRUD
 ```
-[Usuário preenche formulário]
+[Usuário interage com formulário]
          ↓
 [Frontend valida dados]
          ↓
-[Chama função do backend/api]
+[Chama API em src/backend/api]
          ↓
-[Backend registra no console]
+[API interage com Supabase]
          ↓
-[TODO: Backend salva no banco]
+[RLS policies verificam permissões]
          ↓
-[Retorna sucesso/erro]
+[Triggers executam lógica de negócio]
          ↓
-[Frontend exibe mensagem]
+[Dados salvos/atualizados no banco]
+         ↓
+[Frontend recebe resposta]
+         ↓
+[UI atualizada automaticamente]
 ```
 
-### 2. Listar Dados
-```
-[Frontend solicita dados]
-         ↓
-[Chama função listar do backend]
-         ↓
-[TODO: Backend busca no banco]
-         ↓
-[Retorna array de dados]
-         ↓
-[Frontend renderiza na tabela]
-```
-
-### 3. Editar Dados
-```
-[Usuário clica em editar]
-         ↓
-[Frontend abre modal com dados]
-         ↓
-[Usuário modifica e salva]
-         ↓
-[Chama função editar do backend com ID]
-         ↓
-[TODO: Backend atualiza no banco]
-         ↓
-[Retorna sucesso/erro]
-         ↓
-[Frontend atualiza lista]
-```
-
-### 4. Excluir Dados
-```
-[Usuário clica em excluir]
-         ↓
-[Frontend exibe confirmação]
-         ↓
-[Usuário confirma]
-         ↓
-[Chama função excluir com ID]
-         ↓
-[TODO: Backend faz soft delete]
-         ↓
-[Retorna sucesso]
-         ↓
-[Frontend remove da lista]
-```
-
-## 🎯 Funcionalidades Prontas
+## 🎯 Funcionalidades Implementadas
 
 ✅ **Frontend Completo**
-- Formulários de cadastro
-- Tabelas de listagem
-- Modais de edição
-- Confirmação de exclusão
-- Validações de campos
+- Formulários de cadastro com validação
+- Tabelas de listagem com filtros
+- Modais de edição e criação
+- Confirmações de exclusão
 - Mensagens de feedback (toasts)
+- Dashboard com métricas em tempo real
+- Sistema de ranking de vendas
+- Gerenciamento de comissões e metas
 
-✅ **Rotas de API Estruturadas**
-- CRUD completo para todos os módulos
-- Retornos padronizados
-- Logs no console para debug
-- TypeScript com tipagem
+✅ **Backend (Lovable Cloud)**
+- Autenticação completa com Supabase Auth
+- Banco de dados PostgreSQL estruturado
+- RLS policies para segurança de dados
+- Triggers automáticos para cálculos
+- Sistema de roles (master, admin, vendedor)
+- Soft delete em todos os registros
+- Isolamento de dados por `id_ascora`
 
-⏳ **Pendente (TODO)**
-- Conexão com banco de dados
-- Lógica de autenticação real
-- Validações server-side
-- Regras de negócio
-- Testes automatizados
-
-## 🚀 Próximos Passos
-
-1. **Configurar Banco de Dados**
-   ```bash
-   # Instalar cliente do banco (exemplo PostgreSQL)
-   npm install pg
-   ```
-
-2. **Implementar Lógica no Backend**
-   - Abrir arquivos em `src/backend/api/`
-   - Substituir os `TODO` por código real
-   - Conectar ao banco de dados
-
-3. **Adicionar Autenticação**
-   - Implementar JWT ou sessões
-   - Proteger rotas sensíveis
-   - Validar permissões
-
-4. **Testar Integrações**
-   - Testar cada endpoint
-   - Verificar fluxo completo
-   - Corrigir bugs
+✅ **Módulos Implementados**
+- Usuários (com níveis de acesso)
+- Empresas e Equipes
+- Produtos/Serviços e Clientes
+- Metas (individual, equipe, empresa)
+- Comissões (automáticas por nível)
+- Lançamentos de vendas
+- Links personalizados
+- Premiações com upload de imagens
+- Dashboards e relatórios
 
 ## 📝 Convenções de Código
 
 ### Frontend
 - Hooks customizados em `src/hooks/`
-- Componentes em `src/components/`
+- Componentes reutilizáveis em `src/components/`
 - Páginas em `src/pages/`
-- APIs simuladas em `src/backend/api/`
-- Use TypeScript sempre que possível
+- TypeScript obrigatório
+- Design system com tokens semânticos (index.css)
+- Componentes Shadcn/ui customizados
 
 ### Backend
-- Uma função para cada operação CRUD
+- APIs em `src/backend/api/` (interface com Supabase)
 - Sempre retornar `{ success, data?, error? }`
-- Adicionar logs descritivos
-- Validar todos os inputs
+- Logs com prefixo 🔵 Backend
+- RLS policies para todas as tabelas
+- Triggers para lógica automática
+- Soft delete (campo `ativo`) em vez de DELETE
 
 ## 🔍 Debug
 
@@ -216,18 +163,51 @@ Logs do frontend aparecem com o prefixo **🔵 Frontend**:
 ## 🛠️ Tecnologias
 
 ### Frontend
-- React 18
-- TypeScript
-- TanStack Query (React Query)
-- Tailwind CSS
-- Shadcn/ui
+- **React 18** - Framework UI
+- **TypeScript** - Tipagem estática
+- **TanStack Query** - Gerenciamento de estado e cache
+- **Tailwind CSS** - Estilização
+- **Shadcn/ui** - Componentes UI
+- **React Router** - Navegação
+- **Zod** - Validação de schemas
 
-### Backend (Preparado para)
-- Node.js
-- PostgreSQL / MySQL / MongoDB
-- Express / Fastify
-- TypeScript
+### Backend
+- **Lovable Cloud (Supabase)** - Plataforma completa
+- **PostgreSQL** - Banco de dados relacional
+- **Supabase Auth** - Autenticação
+- **Row Level Security** - Segurança de dados
+- **Triggers & Functions** - Lógica de negócio
+
+## 🔐 Segurança
+
+- Autenticação obrigatória em todas as rotas protegidas
+- RLS policies garantem isolamento de dados por `id_ascora`
+- Senha hasheada automaticamente pelo Supabase Auth
+- Roles diferentes para controle de acesso (master, admin, vendedor)
+- Soft delete para auditoria de dados
+
+## 📊 Estrutura do Banco de Dados
+
+**Tabelas Principais:**
+- `profiles` - Perfis de usuário
+- `user_roles` - Roles e permissões
+- `usuarios` - Vendedores e equipes
+- `empresas` - Empresas cadastradas
+- `equipes` - Equipes de vendas
+- `produtos` - Produtos/serviços
+- `clientes` - Clientes cadastrados
+- `metas` - Metas (individual, equipe, empresa)
+- `comissoes` - Estrutura de comissões
+- `lancamentos` - Vendas registradas
+- `links` - Links personalizados
+- `premiacoes` - Premiações
+
+**Lógica Automática:**
+- Meta de empresa é distribuída automaticamente entre vendedores
+- Comissões são aplicadas automaticamente aos vendedores
+- Timestamps atualizados via trigger
+- Campo `id_ascora` preenchido automaticamente
 
 ---
 
-**Nota**: Esta estrutura foi criada para facilitar a migração de um sistema com banco de dados. Todo o frontend está funcional e pronto para integração real com backend.
+**Sistema completo com backend integrado via Lovable Cloud.**
