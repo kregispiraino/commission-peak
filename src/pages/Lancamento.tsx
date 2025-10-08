@@ -503,7 +503,7 @@ export default function Lancamento() {
               </Button>
             </div>
             
-            <ScrollArea className="h-[420px] pr-4">
+            <ScrollArea className="h-[480px] pr-4">
               <div className="space-y-3">
               {isLoading ? (
                 <div className="text-center py-8 text-muted-foreground">
