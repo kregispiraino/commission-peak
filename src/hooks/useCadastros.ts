@@ -51,8 +51,14 @@ export const useUsuarios = () => {
 
   const createMutation = useMutation({
     mutationFn: async (usuario: any) => {
+      if (!idAscora) {
+        throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
+      }
+      
       // Primeiro, cria conta de autenticação se senha foi fornecida
       if (usuario.senha && usuario.email) {
+        console.log('📤 Criando usuário com id_ascora:', idAscora);
+        
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email: usuario.email,
           password: usuario.senha,
@@ -64,20 +70,29 @@ export const useUsuarios = () => {
           }
         });
         
-        if (authError) throw authError;
+        if (authError) {
+          console.error('❌ Erro ao criar autenticação:', authError);
+          throw authError;
+        }
         
         // A tabela profiles será criada automaticamente pelo trigger
         // Agora precisamos atualizar com os dados adicionais
         const { senha, ...usuarioData } = usuario;
         
         if (authData.user) {
+          console.log('📤 Atualizando dados adicionais do usuário:', usuarioData);
+          
           const { error: updateError } = await supabase
             .from('profiles')
             .update(usuarioData)
             .eq('id', authData.user.id);
           
-          if (updateError) throw updateError;
+          if (updateError) {
+            console.error('❌ Erro ao atualizar perfil:', updateError);
+            throw updateError;
+          }
           
+          console.log('✅ Usuário cadastrado com sucesso');
           return authData.user;
         }
       }
@@ -181,13 +196,25 @@ export const useEmpresas = () => {
 
   const createMutation = useMutation({
     mutationFn: async (empresa: any) => {
+      if (!idAscora) {
+        throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
+      }
+      
+      const dadosParaEnviar = { ...empresa, id_ascora: idAscora };
+      console.log('📤 Enviando empresa para o banco:', dadosParaEnviar);
+      
       const { data, error } = await supabase
         .from('empresas')
-        .insert([{ ...empresa, id_ascora: idAscora }])
+        .insert([dadosParaEnviar])
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao cadastrar empresa:', error);
+        throw error;
+      }
+      
+      console.log('✅ Empresa cadastrada com sucesso:', data);
       return data;
     },
     onSuccess: () => {
@@ -288,13 +315,25 @@ export const useEquipes = () => {
 
   const createMutation = useMutation({
     mutationFn: async (equipe: any) => {
+      if (!idAscora) {
+        throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
+      }
+      
+      const dadosParaEnviar = { ...equipe, id_ascora: idAscora };
+      console.log('📤 Enviando equipe para o banco:', dadosParaEnviar);
+      
       const { data, error } = await supabase
         .from('equipes')
-        .insert([{ ...equipe, id_ascora: idAscora }])
+        .insert([dadosParaEnviar])
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao cadastrar equipe:', error);
+        throw error;
+      }
+      
+      console.log('✅ Equipe cadastrada com sucesso:', data);
       return data;
     },
     onSuccess: () => {

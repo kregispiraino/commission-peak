@@ -33,6 +33,10 @@ export const useMetas = () => {
 
   const createMutation = useMutation({
     mutationFn: async (meta: any) => {
+      if (!idAscora) {
+        throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
+      }
+      
       // Verificar se já existe meta para essa empresa/equipe
       const { data: existingMetas } = await supabase
         .from('metas')
@@ -48,13 +52,21 @@ export const useMetas = () => {
         throw new Error('Já existe uma meta cadastrada para esta equipe');
       }
 
+      const dadosParaEnviar = { ...meta, id_ascora: idAscora };
+      console.log('📤 Enviando meta para o banco:', dadosParaEnviar);
+      
       const { data, error } = await supabase
         .from('metas')
-        .insert([{ ...meta, id_ascora: idAscora }])
+        .insert([dadosParaEnviar])
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao cadastrar meta:', error);
+        throw error;
+      }
+      
+      console.log('✅ Meta cadastrada com sucesso:', data);
       return data;
     },
     onSuccess: () => {
@@ -159,13 +171,25 @@ export const useComissoes = () => {
 
   const createMutation = useMutation({
     mutationFn: async (comissao: any) => {
+      if (!idAscora) {
+        throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
+      }
+      
+      const dadosParaEnviar = { ...comissao, id_ascora: idAscora };
+      console.log('📤 Enviando comissão para o banco:', dadosParaEnviar);
+      
       const { data, error } = await supabase
         .from('comissoes')
-        .insert([{ ...comissao, id_ascora: idAscora }])
+        .insert([dadosParaEnviar])
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao cadastrar comissão:', error);
+        throw error;
+      }
+      
+      console.log('✅ Comissão cadastrada com sucesso:', data);
       return data;
     },
     onSuccess: () => {
@@ -266,13 +290,25 @@ export const useProdutos = () => {
 
   const createMutation = useMutation({
     mutationFn: async (produto: any) => {
+      if (!idAscora) {
+        throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
+      }
+      
+      const dadosParaEnviar = { ...produto, id_ascora: idAscora };
+      console.log('📤 Enviando produto para o banco:', dadosParaEnviar);
+      
       const { data, error } = await supabase
         .from('produtos')
-        .insert([{ ...produto, id_ascora: idAscora }])
+        .insert([dadosParaEnviar])
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao cadastrar produto:', error);
+        throw error;
+      }
+      
+      console.log('✅ Produto cadastrado com sucesso:', data);
       return data;
     },
     onSuccess: () => {
@@ -370,13 +406,25 @@ export const useClientes = () => {
 
   const createMutation = useMutation({
     mutationFn: async (cliente: any) => {
+      if (!idAscora) {
+        throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
+      }
+      
+      const dadosParaEnviar = { ...cliente, id_ascora: idAscora };
+      console.log('📤 Enviando cliente para o banco:', dadosParaEnviar);
+      
       const { data, error } = await supabase
         .from('clientes')
-        .insert([{ ...cliente, id_ascora: idAscora }])
+        .insert([dadosParaEnviar])
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao cadastrar cliente:', error);
+        throw error;
+      }
+      
+      console.log('✅ Cliente cadastrado com sucesso:', data);
       return data;
     },
     onSuccess: () => {
@@ -479,13 +527,25 @@ export const useLinks = () => {
 
   const createMutation = useMutation({
     mutationFn: async (link: any) => {
+      if (!idAscora) {
+        throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
+      }
+      
+      const dadosParaEnviar = { ...link, id_ascora: idAscora };
+      console.log('📤 Enviando link para o banco:', dadosParaEnviar);
+      
       const { data, error } = await supabase
         .from('links')
-        .insert([{ ...link, id_ascora: idAscora }])
+        .insert([dadosParaEnviar])
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao cadastrar link:', error);
+        throw error;
+      }
+      
+      console.log('✅ Link cadastrado com sucesso:', data);
       return data;
     },
     onSuccess: () => {
