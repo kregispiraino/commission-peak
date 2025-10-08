@@ -183,44 +183,35 @@ export default function Cadastros() {
   const handleDelete = async () => {
     if (!itemToDelete) return;
     
-    console.log('🗑️ Iniciando exclusão:', itemToDelete);
-    
-    try {
-      switch(itemToDelete.type) {
-        case 'usuario':
-          await deleteUsuario(itemToDelete.id);
-          break;
-        case 'empresa':
-          await deleteEmpresa(itemToDelete.id);
-          break;
-        case 'equipe':
-          await deleteEquipe(itemToDelete.id);
-          break;
-        case 'meta':
-          await deleteMeta(itemToDelete.id);
-          break;
-        case 'comissao':
-          await deleteComissao(itemToDelete.id);
-          break;
+    switch(itemToDelete.type) {
+      case 'usuario':
+        await deleteUsuario(itemToDelete.id);
+        break;
+      case 'empresa':
+        await deleteEmpresa(itemToDelete.id);
+        break;
+      case 'equipe':
+        await deleteEquipe(itemToDelete.id);
+        break;
+      case 'meta':
+        await deleteMeta(itemToDelete.id);
+        break;
+      case 'comissao':
+        await deleteComissao(itemToDelete.id);
+        break;
       case 'produto':
-          await deleteProduto(itemToDelete.id);
-          break;
-        case 'cliente':
-          await deleteCliente(itemToDelete.id);
-          break;
-        case 'link':
-          await deleteLink(itemToDelete.id);
-          break;
-      }
-      
-      console.log('✅ Exclusão concluída com sucesso');
-      setDeleteDialogOpen(false);
-      setItemToDelete(null);
-    } catch (error) {
-      console.error('❌ Erro ao excluir:', error);
-      setDeleteDialogOpen(false);
-      setItemToDelete(null);
+        await deleteProduto(itemToDelete.id);
+        break;
+      case 'cliente':
+        await deleteCliente(itemToDelete.id);
+        break;
+      case 'link':
+        await deleteLink(itemToDelete.id);
+        break;
     }
+    
+    setDeleteDialogOpen(false);
+    setItemToDelete(null);
   };
   
   // Handler functions

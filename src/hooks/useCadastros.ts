@@ -141,19 +141,12 @@ export const useUsuarios = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      console.log('🗑️ Excluindo usuário:', id);
-      
       const { error } = await supabase
         .from('profiles')
         .update({ ativo: false })
         .eq('id', id);
       
-      if (error) {
-        console.error('❌ Erro ao excluir usuário:', error);
-        throw error;
-      }
-      
-      console.log('✅ Usuário excluído com sucesso');
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['usuarios'] });
@@ -264,19 +257,12 @@ export const useEmpresas = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      console.log('🗑️ Excluindo empresa:', id);
-      
       const { error } = await supabase
         .from('empresas')
         .update({ ativo: false })
         .eq('id', id);
       
-      if (error) {
-        console.error('❌ Erro ao excluir empresa:', error);
-        throw error;
-      }
-      
-      console.log('✅ Empresa excluída com sucesso');
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['empresas'] });
@@ -390,19 +376,12 @@ export const useEquipes = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      console.log('🗑️ Excluindo equipe:', id);
-      
       const { error } = await supabase
         .from('equipes')
         .update({ ativo: false })
         .eq('id', id);
       
-      if (error) {
-        console.error('❌ Erro ao excluir equipe:', error);
-        throw error;
-      }
-      
-      console.log('✅ Equipe excluída com sucesso');
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['equipes'] });
