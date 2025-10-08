@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,16 @@ import { PlusCircle, DollarSign, User, Calendar as CalendarIcon, Check, CheckChe
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { 
+  listarLancamentosPendentes, 
+  cadastrarLancamento, 
+  aprovarLancamento, 
+  negarLancamento,
+  aprovarTodosLancamentos,
+  negarTodosLancamentos,
+  type Lancamento
+} from '@/backend/api/lancamentos';
+import { useIdAscora } from '@/hooks/useCadastros';
 
 // Mock data
 const mockVendedores = [
@@ -30,6 +40,7 @@ const mockProdutos = [
 
 export default function Lancamento() {
   const { toast } = useToast();
+  const { data: idAscora } = useIdAscora();
   const [date, setDate] = useState<Date>(new Date());
   const [openVendedor, setOpenVendedor] = useState(false);
   const [openCliente, setOpenCliente] = useState(false);
@@ -40,6 +51,33 @@ export default function Lancamento() {
   const [valor, setValor] = useState("");
   const [pedido, setPedido] = useState("");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [lancamentosPendentes, setLancamentosPendentes] = useState<Lancamento[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Carregar lançamentos pendentes
+  useEffect(() => {
+    if (idAscora) {
+      carregarLancamentos();
+    }
+  }, [idAscora]);
+
+  const carregarLancamentos = async () => {
+    if (!idAscora) return;
+    
+    try {
+      setIsLoading(true);
+      const lancamentos = await listarLancamentosPendentes(idAscora);
+      setLancamentosPendentes(lancamentos);
+    } catch (error) {
+      toast({
+        title: "Erro ao carregar lançamentos",
+        description: "Não foi possível carregar os lançamentos pendentes.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleRegistrarVenda = () => {
     if (!vendedor || !valor || !pedido || !cliente || !produto) {
@@ -53,34 +91,161 @@ export default function Lancamento() {
     setShowConfirmDialog(true);
   };
 
-  const handleConfirmarVenda = () => {
-    toast({
-      title: "Venda registrada!",
-      description: "A venda foi enviada para aprovação com sucesso.",
-    });
-    setShowConfirmDialog(false);
-    // Reset form
-    setVendedor("");
-    setCliente("");
-    setProduto("");
-    setValor("");
-    setPedido("");
-    setDate(new Date());
+  const handleConfirmarVenda = async () => {
+    if (!idAscora) {
+      toast({
+        title: "Erro",
+        description: "ID Ascora não encontrado. Por favor, faça login novamente.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const resultado = await cadastrarLancamento({
+        vendedor,
+        cliente,
+        produto,
+        valor: parseFloat(valor),
+        pedido,
+        data: format(date, "yyyy-MM-dd"),
+        id_ascora: idAscora,
+      });
+
+      if (resultado.success) {
+        toast({
+          title: "Venda registrada!",
+          description: "A venda foi enviada para aprovação com sucesso.",
+        });
+        setShowConfirmDialog(false);
+        // Reset form
+        setVendedor("");
+        setCliente("");
+        setProduto("");
+        setValor("");
+        setPedido("");
+        setDate(new Date());
+        // Recarregar lançamentos
+        carregarLancamentos();
+      } else {
+        throw new Error(resultado.error || 'Erro ao registrar venda');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro ao registrar venda",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleAprovarTodos = () => {
-    toast({
-      title: "Todos aprovados!",
-      description: "Todas as liberações pendentes foram aprovadas.",
-    });
+  const handleAprovarIndividual = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const resultado = await aprovarLancamento(id);
+      
+      if (resultado.success) {
+        toast({
+          title: "Lançamento aprovado!",
+          description: "O lançamento foi aprovado com sucesso.",
+        });
+        carregarLancamentos();
+      } else {
+        throw new Error(resultado.error || 'Erro ao aprovar lançamento');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro ao aprovar",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleNegarTodos = () => {
-    toast({
-      title: "Todos negados!",
-      description: "Todas as liberações pendentes foram negadas.",
-      variant: "destructive",
-    });
+  const handleNegarIndividual = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const resultado = await negarLancamento(id);
+      
+      if (resultado.success) {
+        toast({
+          title: "Lançamento negado!",
+          description: "O lançamento foi negado.",
+          variant: "destructive",
+        });
+        carregarLancamentos();
+      } else {
+        throw new Error(resultado.error || 'Erro ao negar lançamento');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro ao negar",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAprovarTodos = async () => {
+    if (!idAscora) return;
+    
+    try {
+      setIsLoading(true);
+      const resultado = await aprovarTodosLancamentos(idAscora);
+      
+      if (resultado.success) {
+        toast({
+          title: "Todos aprovados!",
+          description: "Todas as liberações pendentes foram aprovadas.",
+        });
+        carregarLancamentos();
+      } else {
+        throw new Error(resultado.error || 'Erro ao aprovar todos');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro ao aprovar todos",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleNegarTodos = async () => {
+    if (!idAscora) return;
+    
+    try {
+      setIsLoading(true);
+      const resultado = await negarTodosLancamentos(idAscora);
+      
+      if (resultado.success) {
+        toast({
+          title: "Todos negados!",
+          description: "Todas as liberações pendentes foram negadas.",
+          variant: "destructive",
+        });
+        carregarLancamentos();
+      } else {
+        throw new Error(resultado.error || 'Erro ao negar todos');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro ao negar todos",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -307,9 +472,10 @@ export default function Lancamento() {
             <Button 
               className="w-full bg-gradient-primary text-white shadow-glow hover:shadow-xl transition-all"
               onClick={handleRegistrarVenda}
+              disabled={isLoading}
             >
               <PlusCircle className="w-4 h-4 mr-2" />
-              Registrar Venda
+              {isLoading ? 'Processando...' : 'Registrar Venda'}
             </Button>
           </div>
         </Card>
@@ -372,81 +538,92 @@ export default function Lancamento() {
             
             <div className="flex justify-center">
               <div className="inline-flex gap-2 p-2 bg-card/50 rounded-lg border border-border/50">
-                <Button 
-                  size="sm" 
-                  className="bg-gradient-success text-white shadow-sm hover:shadow-md transition-all"
-                  onClick={handleAprovarTodos}
-                >
-                  <CheckCheck className="w-4 h-4 mr-1" />
-                  Aprovar Todos
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="text-destructive border-destructive/20 hover:bg-destructive/10 transition-all"
-                  onClick={handleNegarTodos}
-                >
-                  <X className="w-4 h-4 mr-1" />
-                  Negar Todos
-                </Button>
+              <Button 
+                size="sm" 
+                className="bg-gradient-success text-white shadow-sm hover:shadow-md transition-all"
+                onClick={handleAprovarTodos}
+                disabled={isLoading || lancamentosPendentes.length === 0}
+              >
+                <CheckCheck className="w-4 h-4 mr-1" />
+                Aprovar Todos
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="text-destructive border-destructive/20 hover:bg-destructive/10 transition-all"
+                onClick={handleNegarTodos}
+                disabled={isLoading || lancamentosPendentes.length === 0}
+              >
+                <X className="w-4 h-4 mr-1" />
+                Negar Todos
+              </Button>
               </div>
             </div>
             
             <ScrollArea className="h-[420px] pr-4">
               <div className="space-y-3">
-              {/* Mock pending approvals */}
-              {[
-                { id: 1, seller: 'Ana Silva', value: 'R$ 8.500', client: 'Tech Corp', date: '2024-01-15', product: 'Software License' },
-                { id: 2, seller: 'João Oliveira', value: 'R$ 3.200', client: 'Digital Solutions', date: '2024-01-15', product: 'Consultoria' },
-                { id: 3, seller: 'Luiza Ferreira', value: 'R$ 12.800', client: 'InnovaWeb', date: '2024-01-14', product: 'Desenvolvimento Web' },
-              ].map((approval) => (
-                <div 
-                  key={approval.id}
-                  className="p-5 bg-card rounded-lg border border-border hover:shadow-md transition-all space-y-3"
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center flex-shrink-0">
-                        <User className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-foreground truncate">{approval.seller}</p>
-                        <p className="text-sm text-muted-foreground truncate">{approval.client}</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 flex-shrink-0">
-                      <Button size="sm" className="bg-gradient-success text-white shadow-glow">
-                        Aprovar
-                      </Button>
-                      <Button size="sm" variant="outline" className="text-destructive border-destructive/20 hover:bg-destructive/10">
-                        Negar
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-border/50">
-                    <div className="flex flex-col space-y-1">
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Valor</span>
-                      <span className="font-semibold text-success text-base">{approval.value}</span>
-                    </div>
-                    <div className="flex flex-col space-y-1">
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Produto</span>
-                      <span className="font-medium text-foreground text-sm truncate">{approval.product}</span>
-                    </div>
-                    <div className="flex flex-col space-y-1">
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Data</span>
-                      <span className="font-medium text-foreground text-sm">{approval.date}</span>
-                    </div>
-                  </div>
+              {isLoading ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Carregando lançamentos...
                 </div>
-              ))}
-              
-                {/* Empty state */}
-                {false && (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">Nenhuma liberação pendente no momento</p>
+              ) : lancamentosPendentes.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Nenhum lançamento pendente
+                </div>
+              ) : (
+                lancamentosPendentes.map((approval) => (
+                  <div 
+                    key={approval.id}
+                    className="p-5 bg-card rounded-lg border border-border hover:shadow-md transition-all space-y-3"
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center flex-shrink-0">
+                          <User className="w-5 h-5 text-white" />
+                      </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-foreground truncate">{approval.vendedor}</p>
+                          <p className="text-sm text-muted-foreground truncate">{approval.cliente}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <Button 
+                          size="sm" 
+                          className="bg-gradient-success text-white shadow-glow"
+                          onClick={() => handleAprovarIndividual(approval.id)}
+                          disabled={isLoading}
+                        >
+                          Aprovar
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="text-destructive border-destructive/20 hover:bg-destructive/10"
+                          onClick={() => handleNegarIndividual(approval.id)}
+                          disabled={isLoading}
+                        >
+                          Negar
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-border/50">
+                      <div className="flex flex-col space-y-1">
+                        <span className="text-xs text-muted-foreground uppercase tracking-wide">Valor</span>
+                        <span className="font-semibold text-success text-base">R$ {approval.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                      </div>
+                      <div className="flex flex-col space-y-1">
+                        <span className="text-xs text-muted-foreground uppercase tracking-wide">Produto</span>
+                        <span className="font-medium text-foreground text-sm truncate">{approval.produto}</span>
+                      </div>
+                      <div className="flex flex-col space-y-1">
+                        <span className="text-xs text-muted-foreground uppercase tracking-wide">Data</span>
+                        <span className="font-medium text-foreground text-sm">{format(new Date(approval.data), 'dd/MM/yyyy')}</span>
+                      </div>
+                    </div>
                   </div>
-                )}
+                ))
+              )}
               </div>
             </ScrollArea>
           </div>

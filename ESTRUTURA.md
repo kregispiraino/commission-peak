@@ -16,7 +16,8 @@ projeto/
     │       ├── comissoes.ts
     │       ├── produtos.ts
     │       ├── clientes.ts
-    │       └── links.ts
+    │       ├── links.ts
+    │       └── lancamentos.ts
     │
     ├── components/      # Componentes React
     ├── pages/          # Páginas da aplicação
