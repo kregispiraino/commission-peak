@@ -1,7 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useIdAscora } from './useCadastros';
+import {
+  listarMetas, cadastrarMeta, editarMeta, excluirMeta
+} from '@/../../backend/api/metas';
+import {
+  listarComissoes, cadastrarComissao, editarComissao, excluirComissao
+} from '@/../../backend/api/comissoes';
+import {
+  listarProdutos, cadastrarProduto, editarProduto, excluirProduto
+} from '@/../../backend/api/produtos';
+import {
+  listarClientes, cadastrarCliente, editarCliente, excluirCliente
+} from '@/../../backend/api/clientes';
+import {
+  listarLinks, cadastrarLink, editarLink, excluirLink
+} from '@/../../backend/api/links';
 
 // Hook para Metas
 export const useMetas = () => {
@@ -13,20 +27,7 @@ export const useMetas = () => {
     queryKey: ['metas', idAscora],
     queryFn: async () => {
       if (!idAscora) return [];
-      
-      const { data, error } = await supabase
-        .from('metas')
-        .select(`
-          *,
-          empresa:empresas(id, nome),
-          equipe:equipes(id, nome)
-        `)
-        .eq('id_ascora', idAscora)
-        .eq('ativo', true)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data || [];
+      return await listarMetas(idAscora);
     },
     enabled: !!idAscora,
   });
@@ -37,42 +38,18 @@ export const useMetas = () => {
         throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
       }
       
-      // Verificar se já existe meta para essa empresa/equipe
-      const { data: existingMetas } = await supabase
-        .from('metas')
-        .select('*')
-        .eq('id_ascora', idAscora)
-        .eq('ativo', true);
-
-      if (meta.tipo === 'empresa' && existingMetas?.some(m => m.empresa_id === meta.empresa_id)) {
-        throw new Error('Já existe uma meta cadastrada para esta empresa');
+      const metaComIdAscora = { ...meta, id_ascora: idAscora };
+      const resultado = await cadastrarMeta(metaComIdAscora);
+      
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao cadastrar meta');
       }
       
-      if (meta.tipo === 'equipe' && existingMetas?.some(m => m.equipe_id === meta.equipe_id)) {
-        throw new Error('Já existe uma meta cadastrada para esta equipe');
-      }
-
-      const dadosParaEnviar = { ...meta, id_ascora: idAscora };
-      console.log('📤 Enviando meta para o banco:', dadosParaEnviar);
-      
-      const { data, error } = await supabase
-        .from('metas')
-        .insert([dadosParaEnviar])
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('❌ Erro ao cadastrar meta:', error);
-        throw error;
-      }
-      
-      console.log('✅ Meta cadastrada com sucesso:', data);
-      return data;
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['metas'] });
-      queryClient.invalidateQueries({ queryKey: ['usuarios'] });
-      toast({ title: 'Meta criada e distribuída aos vendedores!' });
+      toast({ title: 'Meta criada com sucesso!' });
     },
     onError: (error: any) => {
       toast({ 
@@ -85,20 +62,17 @@ export const useMetas = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...meta }: any) => {
-      const { data, error } = await supabase
-        .from('metas')
-        .update(meta)
-        .eq('id', id)
-        .select()
-        .single();
+      const resultado = await editarMeta(id, meta);
       
-      if (error) throw error;
-      return data;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao atualizar meta');
+      }
+      
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['metas'] });
-      queryClient.invalidateQueries({ queryKey: ['usuarios'] });
-      toast({ title: 'Meta atualizada e redistribuída!' });
+      toast({ title: 'Meta atualizada com sucesso!' });
     },
     onError: (error: any) => {
       toast({ 
@@ -111,17 +85,15 @@ export const useMetas = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('metas')
-        .delete()
-        .eq('id', id);
+      const resultado = await excluirMeta(id);
       
-      if (error) throw error;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao excluir meta');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['metas'] });
-      queryClient.invalidateQueries({ queryKey: ['usuarios'] });
-      toast({ title: 'Meta removida e vendedores atualizados!' });
+      toast({ title: 'Meta removida com sucesso!' });
     },
     onError: (error: any) => {
       toast({ 
@@ -151,20 +123,7 @@ export const useComissoes = () => {
     queryKey: ['comissoes', idAscora],
     queryFn: async () => {
       if (!idAscora) return [];
-      
-      const { data, error } = await supabase
-        .from('comissoes')
-        .select(`
-          *,
-          empresa:empresas(id, nome),
-          equipe:equipes(id, nome)
-        `)
-        .eq('id_ascora', idAscora)
-        .eq('ativo', true)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data || [];
+      return await listarComissoes(idAscora);
     },
     enabled: !!idAscora,
   });
@@ -175,27 +134,18 @@ export const useComissoes = () => {
         throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
       }
       
-      const dadosParaEnviar = { ...comissao, id_ascora: idAscora };
-      console.log('📤 Enviando comissão para o banco:', dadosParaEnviar);
+      const comissaoComIdAscora = { ...comissao, id_ascora: idAscora };
+      const resultado = await cadastrarComissao(comissaoComIdAscora);
       
-      const { data, error } = await supabase
-        .from('comissoes')
-        .insert([dadosParaEnviar])
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('❌ Erro ao cadastrar comissão:', error);
-        throw error;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao cadastrar comissão');
       }
       
-      console.log('✅ Comissão cadastrada com sucesso:', data);
-      return data;
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comissoes'] });
-      queryClient.invalidateQueries({ queryKey: ['usuarios'] });
-      toast({ title: 'Comissão criada e adicionada aos vendedores!' });
+      toast({ title: 'Comissão criada com sucesso!' });
     },
     onError: (error: any) => {
       toast({ 
@@ -208,20 +158,17 @@ export const useComissoes = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...comissao }: any) => {
-      const { data, error } = await supabase
-        .from('comissoes')
-        .update(comissao)
-        .eq('id', id)
-        .select()
-        .single();
+      const resultado = await editarComissao(id, comissao);
       
-      if (error) throw error;
-      return data;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao atualizar comissão');
+      }
+      
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comissoes'] });
-      queryClient.invalidateQueries({ queryKey: ['usuarios'] });
-      toast({ title: 'Comissão atualizada nos vendedores!' });
+      toast({ title: 'Comissão atualizada com sucesso!' });
     },
     onError: (error: any) => {
       toast({ 
@@ -234,17 +181,15 @@ export const useComissoes = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('comissoes')
-        .delete()
-        .eq('id', id);
+      const resultado = await excluirComissao(id);
       
-      if (error) throw error;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao excluir comissão');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comissoes'] });
-      queryClient.invalidateQueries({ queryKey: ['usuarios'] });
-      toast({ title: 'Comissão removida dos vendedores!' });
+      toast({ title: 'Comissão removida com sucesso!' });
     },
     onError: (error: any) => {
       toast({ 
@@ -274,16 +219,7 @@ export const useProdutos = () => {
     queryKey: ['produtos', idAscora],
     queryFn: async () => {
       if (!idAscora) return [];
-      
-      const { data, error } = await supabase
-        .from('produtos')
-        .select('*')
-        .eq('id_ascora', idAscora)
-        .eq('ativo', true)
-        .order('nome');
-      
-      if (error) throw error;
-      return data || [];
+      return await listarProdutos(idAscora);
     },
     enabled: !!idAscora,
   });
@@ -294,22 +230,14 @@ export const useProdutos = () => {
         throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
       }
       
-      const dadosParaEnviar = { ...produto, id_ascora: idAscora };
-      console.log('📤 Enviando produto para o banco:', dadosParaEnviar);
+      const produtoComIdAscora = { ...produto, id_ascora: idAscora };
+      const resultado = await cadastrarProduto(produtoComIdAscora);
       
-      const { data, error } = await supabase
-        .from('produtos')
-        .insert([dadosParaEnviar])
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('❌ Erro ao cadastrar produto:', error);
-        throw error;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao cadastrar produto');
       }
       
-      console.log('✅ Produto cadastrado com sucesso:', data);
-      return data;
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['produtos'] });
@@ -326,15 +254,13 @@ export const useProdutos = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...produto }: any) => {
-      const { data, error } = await supabase
-        .from('produtos')
-        .update(produto)
-        .eq('id', id)
-        .select()
-        .single();
+      const resultado = await editarProduto(id, produto);
       
-      if (error) throw error;
-      return data;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao atualizar produto');
+      }
+      
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['produtos'] });
@@ -351,12 +277,11 @@ export const useProdutos = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('produtos')
-        .update({ ativo: false })
-        .eq('id', id);
+      const resultado = await excluirProduto(id);
       
-      if (error) throw error;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao excluir produto');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['produtos'] });
@@ -390,16 +315,7 @@ export const useClientes = () => {
     queryKey: ['clientes', idAscora],
     queryFn: async () => {
       if (!idAscora) return [];
-      
-      const { data, error } = await supabase
-        .from('clientes')
-        .select('*')
-        .eq('id_ascora', idAscora)
-        .eq('ativo', true)
-        .order('nome');
-      
-      if (error) throw error;
-      return data || [];
+      return await listarClientes(idAscora);
     },
     enabled: !!idAscora,
   });
@@ -410,22 +326,14 @@ export const useClientes = () => {
         throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
       }
       
-      const dadosParaEnviar = { ...cliente, id_ascora: idAscora };
-      console.log('📤 Enviando cliente para o banco:', dadosParaEnviar);
+      const clienteComIdAscora = { ...cliente, id_ascora: idAscora };
+      const resultado = await cadastrarCliente(clienteComIdAscora);
       
-      const { data, error } = await supabase
-        .from('clientes')
-        .insert([dadosParaEnviar])
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('❌ Erro ao cadastrar cliente:', error);
-        throw error;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao cadastrar cliente');
       }
       
-      console.log('✅ Cliente cadastrado com sucesso:', data);
-      return data;
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clientes'] });
@@ -442,15 +350,13 @@ export const useClientes = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...cliente }: any) => {
-      const { data, error } = await supabase
-        .from('clientes')
-        .update(cliente)
-        .eq('id', id)
-        .select()
-        .single();
+      const resultado = await editarCliente(id, cliente);
       
-      if (error) throw error;
-      return data;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao atualizar cliente');
+      }
+      
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clientes'] });
@@ -467,12 +373,11 @@ export const useClientes = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('clientes')
-        .update({ ativo: false })
-        .eq('id', id);
+      const resultado = await excluirCliente(id);
       
-      if (error) throw error;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao excluir cliente');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clientes'] });
@@ -506,21 +411,7 @@ export const useLinks = () => {
     queryKey: ['links', idAscora],
     queryFn: async () => {
       if (!idAscora) return [];
-      
-      const { data, error } = await supabase
-        .from('links')
-        .select(`
-          *,
-          vendedor:profiles(id, nome),
-          empresa:empresas(id, nome),
-          equipe:equipes(id, nome)
-        `)
-        .eq('id_ascora', idAscora)
-        .eq('ativo', true)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data || [];
+      return await listarLinks(idAscora);
     },
     enabled: !!idAscora,
   });
@@ -531,22 +422,14 @@ export const useLinks = () => {
         throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
       }
       
-      const dadosParaEnviar = { ...link, id_ascora: idAscora };
-      console.log('📤 Enviando link para o banco:', dadosParaEnviar);
+      const linkComIdAscora = { ...link, id_ascora: idAscora };
+      const resultado = await cadastrarLink(linkComIdAscora);
       
-      const { data, error } = await supabase
-        .from('links')
-        .insert([dadosParaEnviar])
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('❌ Erro ao cadastrar link:', error);
-        throw error;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao cadastrar link');
       }
       
-      console.log('✅ Link cadastrado com sucesso:', data);
-      return data;
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['links'] });
@@ -563,15 +446,13 @@ export const useLinks = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...link }: any) => {
-      const { data, error } = await supabase
-        .from('links')
-        .update(link)
-        .eq('id', id)
-        .select()
-        .single();
+      const resultado = await editarLink(id, link);
       
-      if (error) throw error;
-      return data;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao atualizar link');
+      }
+      
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['links'] });
@@ -588,12 +469,11 @@ export const useLinks = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('links')
-        .update({ ativo: false })
-        .eq('id', id);
+      const resultado = await excluirLink(id);
       
-      if (error) throw error;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao excluir link');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['links'] });

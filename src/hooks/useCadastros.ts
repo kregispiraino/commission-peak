@@ -1,22 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { 
+  listarUsuarios, cadastrarUsuario, editarUsuario, excluirUsuario 
+} from '@/../../backend/api/usuarios';
+import { 
+  listarEmpresas, cadastrarEmpresa, editarEmpresa, excluirEmpresa 
+} from '@/../../backend/api/empresas';
+import { 
+  listarEquipes, cadastrarEquipe, editarEquipe, excluirEquipe 
+} from '@/../../backend/api/equipes';
 
 // Hook para obter o ID Ascora do usuário logado
 export const useIdAscora = () => {
   return useQuery({
     queryKey: ['id-ascora'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Usuário não autenticado');
-      
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id_ascora')
-        .eq('id', user.id)
-        .single();
-      
-      return profile?.id_ascora || 'ASC0001';
+      // TODO: Implementar lógica de obtenção do ID Ascora do usuário logado
+      console.log('🔵 Frontend - Obtendo ID Ascora do usuário logado');
+      return 'ASC0001'; // Valor simulado
     },
   });
 };
@@ -31,20 +32,7 @@ export const useUsuarios = () => {
     queryKey: ['usuarios', idAscora],
     queryFn: async () => {
       if (!idAscora) return [];
-      
-      const { data, error } = await supabase
-        .from('profiles')
-        .select(`
-          *,
-          empresa:empresas(id, nome),
-          equipe:equipes(id, nome)
-        `)
-        .eq('id_ascora', idAscora)
-        .eq('ativo', true)
-        .order('nome');
-      
-      if (error) throw error;
-      return data || [];
+      return await listarUsuarios(idAscora);
     },
     enabled: !!idAscora,
   });
@@ -55,49 +43,14 @@ export const useUsuarios = () => {
         throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
       }
       
-      // Primeiro, cria conta de autenticação se senha foi fornecida
-      if (usuario.senha && usuario.email) {
-        console.log('📤 Criando usuário com id_ascora:', idAscora);
-        
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: usuario.email,
-          password: usuario.senha,
-          options: {
-            data: {
-              nome: usuario.nome,
-              id_ascora: idAscora
-            }
-          }
-        });
-        
-        if (authError) {
-          console.error('❌ Erro ao criar autenticação:', authError);
-          throw authError;
-        }
-        
-        // A tabela profiles será criada automaticamente pelo trigger
-        // Agora precisamos atualizar com os dados adicionais
-        const { senha, ...usuarioData } = usuario;
-        
-        if (authData.user) {
-          console.log('📤 Atualizando dados adicionais do usuário:', usuarioData);
-          
-          const { error: updateError } = await supabase
-            .from('profiles')
-            .update(usuarioData)
-            .eq('id', authData.user.id);
-          
-          if (updateError) {
-            console.error('❌ Erro ao atualizar perfil:', updateError);
-            throw updateError;
-          }
-          
-          console.log('✅ Usuário cadastrado com sucesso');
-          return authData.user;
-        }
+      const usuarioComIdAscora = { ...usuario, id_ascora: idAscora };
+      const resultado = await cadastrarUsuario(usuarioComIdAscora);
+      
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao cadastrar usuário');
       }
       
-      throw new Error('Email e senha são obrigatórios');
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['usuarios'] });
@@ -115,16 +68,13 @@ export const useUsuarios = () => {
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...usuario }: any) => {
       const { senha, ...usuarioData } = usuario;
+      const resultado = await editarUsuario(id, usuarioData);
       
-      const { data, error } = await supabase
-        .from('profiles')
-        .update(usuarioData)
-        .eq('id', id)
-        .select()
-        .single();
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao atualizar usuário');
+      }
       
-      if (error) throw error;
-      return data;
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['usuarios'] });
@@ -141,12 +91,11 @@ export const useUsuarios = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ ativo: false })
-        .eq('id', id);
+      const resultado = await excluirUsuario(id);
       
-      if (error) throw error;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao excluir usuário');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['usuarios'] });
@@ -180,16 +129,7 @@ export const useEmpresas = () => {
     queryKey: ['empresas', idAscora],
     queryFn: async () => {
       if (!idAscora) return [];
-      
-      const { data, error } = await supabase
-        .from('empresas')
-        .select('*')
-        .eq('id_ascora', idAscora)
-        .eq('ativo', true)
-        .order('nome');
-      
-      if (error) throw error;
-      return data || [];
+      return await listarEmpresas(idAscora);
     },
     enabled: !!idAscora,
   });
@@ -200,22 +140,14 @@ export const useEmpresas = () => {
         throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
       }
       
-      const dadosParaEnviar = { ...empresa, id_ascora: idAscora };
-      console.log('📤 Enviando empresa para o banco:', dadosParaEnviar);
+      const empresaComIdAscora = { ...empresa, id_ascora: idAscora };
+      const resultado = await cadastrarEmpresa(empresaComIdAscora);
       
-      const { data, error } = await supabase
-        .from('empresas')
-        .insert([dadosParaEnviar])
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('❌ Erro ao cadastrar empresa:', error);
-        throw error;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao cadastrar empresa');
       }
       
-      console.log('✅ Empresa cadastrada com sucesso:', data);
-      return data;
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['empresas'] });
@@ -232,15 +164,13 @@ export const useEmpresas = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...empresa }: any) => {
-      const { data, error } = await supabase
-        .from('empresas')
-        .update(empresa)
-        .eq('id', id)
-        .select()
-        .single();
+      const resultado = await editarEmpresa(id, empresa);
       
-      if (error) throw error;
-      return data;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao atualizar empresa');
+      }
+      
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['empresas'] });
@@ -257,12 +187,11 @@ export const useEmpresas = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('empresas')
-        .update({ ativo: false })
-        .eq('id', id);
+      const resultado = await excluirEmpresa(id);
       
-      if (error) throw error;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao excluir empresa');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['empresas'] });
@@ -296,19 +225,7 @@ export const useEquipes = () => {
     queryKey: ['equipes', idAscora],
     queryFn: async () => {
       if (!idAscora) return [];
-      
-      const { data, error } = await supabase
-        .from('equipes')
-        .select(`
-          *,
-          empresa:empresas(id, nome)
-        `)
-        .eq('id_ascora', idAscora)
-        .eq('ativo', true)
-        .order('nome');
-      
-      if (error) throw error;
-      return data || [];
+      return await listarEquipes(idAscora);
     },
     enabled: !!idAscora,
   });
@@ -319,22 +236,14 @@ export const useEquipes = () => {
         throw new Error('ID Ascora não encontrado. Por favor, faça login novamente.');
       }
       
-      const dadosParaEnviar = { ...equipe, id_ascora: idAscora };
-      console.log('📤 Enviando equipe para o banco:', dadosParaEnviar);
+      const equipeComIdAscora = { ...equipe, id_ascora: idAscora };
+      const resultado = await cadastrarEquipe(equipeComIdAscora);
       
-      const { data, error } = await supabase
-        .from('equipes')
-        .insert([dadosParaEnviar])
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('❌ Erro ao cadastrar equipe:', error);
-        throw error;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao cadastrar equipe');
       }
       
-      console.log('✅ Equipe cadastrada com sucesso:', data);
-      return data;
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['equipes'] });
@@ -351,15 +260,13 @@ export const useEquipes = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...equipe }: any) => {
-      const { data, error } = await supabase
-        .from('equipes')
-        .update(equipe)
-        .eq('id', id)
-        .select()
-        .single();
+      const resultado = await editarEquipe(id, equipe);
       
-      if (error) throw error;
-      return data;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao atualizar equipe');
+      }
+      
+      return resultado.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['equipes'] });
@@ -376,12 +283,11 @@ export const useEquipes = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('equipes')
-        .update({ ativo: false })
-        .eq('id', id);
+      const resultado = await excluirEquipe(id);
       
-      if (error) throw error;
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao excluir equipe');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['equipes'] });

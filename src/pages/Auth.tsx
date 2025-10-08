@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,24 +18,18 @@ export default function Auth() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
+    // TODO: Implementar lógica de autenticação real com o backend
+    console.log('🔵 Frontend - Tentando fazer login:', { email });
+    
+    // Simula autenticação
+    setTimeout(() => {
       toast({
-        title: 'Erro ao fazer login',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } else {
-      toast({
-        title: 'Login realizado com sucesso!',
+        title: 'Login simulado realizado com sucesso!',
+        description: 'Conecte ao backend para autenticação real'
       });
       navigate('/');
-    }
-    setLoading(false);
+      setLoading(false);
+    }, 1000);
   };
 
   return (
