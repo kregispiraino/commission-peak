@@ -6,34 +6,104 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { TrendingUp, Users, Target, DollarSign, BarChart3, Building2, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
-
-// Mock data para estatísticas gerais
-const dashboardStats = {
-  totalSales: 445000,
-  totalSellers: 6,
-  averageCommission: 7416,
-  monthProgress: 78.5,
-};
-
-// Mock data para empresas (para usuários master)
-const companiesData = [
-  { id: 'company1', name: 'TechCorp', sales: 180000, sellers: 3, color: '#3b82f6' },
-  { id: 'company2', name: 'InnovaSoft', sales: 165000, sellers: 2, color: '#10b981' },
-  { id: 'company3', name: 'DigitalMax', sales: 100000, sellers: 1, color: '#f59e0b' },
-];
-
-// Mock data para equipes
-const teamsData = [
-  { id: 'team1', name: 'Equipe A', sales: 200000, sellers: 3 },
-  { id: 'team2', name: 'Equipe B', sales: 150000, sellers: 2 },
-  { id: 'team3', name: 'Equipe C', sales: 95000, sellers: 1 },
-];
+import { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import {
+  buscarEstatisticasGerais,
+  listarEmpresasFiltro,
+  listarEquipesFiltro,
+  buscarNivelAcessoUsuario,
+  calcularVendasFiltradas,
+  type DashboardStats,
+  type Company,
+  type Team,
+} from '@/backend/api/home';
 
 export function Dashboard() {
-  const [selectedCompanies, setSelectedCompanies] = useState<string[]>(companiesData.map(c => c.id));
-  const [selectedTeams, setSelectedTeams] = useState<string[]>(teamsData.map(t => t.id));
-  const [userRole] = useState('master'); // Mock user role - in real app this would come from auth context
+  const { toast } = useToast();
+  
+  // Estados para dados do backend
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
+  const [companiesData, setCompaniesData] = useState<Company[]>([]);
+  const [teamsData, setTeamsData] = useState<Team[]>([]);
+  const [userRole, setUserRole] = useState<'master' | 'gerente' | 'vendedor'>('vendedor');
+  const [loading, setLoading] = useState(true);
+  
+  // Estados para filtros
+  const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
+  const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
+  
+  // Estados para dados filtrados
+  const [filteredSales, setFilteredSales] = useState({ totalSales: 0, totalSellers: 0 });
+
+  // Carregar dados iniciais
+  useEffect(() => {
+    carregarDadosIniciais();
+  }, []);
+
+  // Recalcular vendas quando filtros mudarem
+  useEffect(() => {
+    if (selectedCompanies.length > 0 || selectedTeams.length > 0) {
+      atualizarVendasFiltradas();
+    }
+  }, [selectedCompanies, selectedTeams]);
+
+  const carregarDadosIniciais = async () => {
+    console.log('🔵 Frontend - Carregando dados iniciais do Dashboard');
+    setLoading(true);
+    
+    try {
+      // Buscar dados em paralelo
+      const [statsRes, empresasRes, equipesRes, roleRes] = await Promise.all([
+        buscarEstatisticasGerais(),
+        listarEmpresasFiltro(),
+        listarEquipesFiltro(),
+        buscarNivelAcessoUsuario(),
+      ]);
+
+      if (statsRes.success && statsRes.data) {
+        setDashboardStats(statsRes.data);
+      }
+
+      if (empresasRes.success && empresasRes.data) {
+        setCompaniesData(empresasRes.data);
+        setSelectedCompanies(empresasRes.data.map(c => c.id));
+      }
+
+      if (equipesRes.success && equipesRes.data) {
+        setTeamsData(equipesRes.data);
+        setSelectedTeams(equipesRes.data.map(t => t.id));
+      }
+
+      if (roleRes.success && roleRes.data) {
+        setUserRole(roleRes.data.role);
+      }
+
+    } catch (error) {
+      console.error('Erro ao carregar dados do dashboard:', error);
+      toast({
+        title: "Erro ao carregar dados",
+        description: "Não foi possível carregar os dados do dashboard.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const atualizarVendasFiltradas = async () => {
+    console.log('🔵 Frontend - Atualizando vendas filtradas');
+    
+    try {
+      const response = await calcularVendasFiltradas(selectedCompanies, selectedTeams);
+      
+      if (response.success && response.data) {
+        setFilteredSales(response.data);
+      }
+    } catch (error) {
+      console.error('Erro ao calcular vendas filtradas:', error);
+    }
+  };
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -47,8 +117,8 @@ export function Dashboard() {
   const filteredCompaniesData = companiesData.filter(c => selectedCompanies.includes(c.id));
   const filteredTeamsData = teamsData.filter(t => selectedTeams.includes(t.id));
   
-  const totalFilteredSales = filteredCompaniesData.reduce((acc, curr) => acc + curr.sales, 0);
-  const totalFilteredSellers = filteredCompaniesData.reduce((acc, curr) => acc + curr.sellers, 0);
+  const totalFilteredSales = filteredSales.totalSales;
+  const totalFilteredSellers = filteredSales.totalSellers;
 
   const toggleCompany = (companyId: string) => {
     setSelectedCompanies(prev => 
@@ -264,20 +334,24 @@ export function Dashboard() {
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <StatsCard
-            title="Vendas Totais"
-            value={formatCurrency(totalFilteredSales)}
-            icon={DollarSign}
-            trend="+12.5%"
-          />
-          <StatsCard
-            title="Progresso"
-            value={`${dashboardStats.monthProgress}%`}
-            icon={TrendingUp}
-            trend="+8.3%"
-          />
-        </div>
+        {loading ? (
+          <div className="text-center text-muted-foreground">Carregando...</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <StatsCard
+              title="Vendas Totais"
+              value={formatCurrency(totalFilteredSales)}
+              icon={DollarSign}
+              trend="+12.5%"
+            />
+            <StatsCard
+              title="Progresso"
+              value={dashboardStats ? `${dashboardStats.monthProgress}%` : '0%'}
+              icon={TrendingUp}
+              trend="+8.3%"
+            />
+          </div>
+        )}
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -3,29 +3,46 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Medal, Award, TrendingUp, Target } from 'lucide-react';
-
-interface Salesperson {
-  id: number;
-  name: string;
-  sales: number;
-  target: number;
-  avatar?: string;
-  position: number;
-  commission: number;
-  trend: 'up' | 'down' | 'stable';
-}
-
-// Mock data - em produção virá da API
-const salesData: Salesperson[] = [
-  { id: 1, name: "Ana Silva", sales: 95000, target: 100000, position: 1, commission: 9500, trend: 'up' },
-  { id: 2, name: "Carlos Santos", sales: 87000, target: 90000, position: 2, commission: 8700, trend: 'up' },
-  { id: 3, name: "Maria Costa", sales: 75000, target: 80000, position: 3, commission: 7500, trend: 'stable' },
-  { id: 4, name: "João Oliveira", sales: 68000, target: 75000, position: 4, commission: 6800, trend: 'up' },
-  { id: 5, name: "Luiza Ferreira", sales: 62000, target: 70000, position: 5, commission: 6200, trend: 'down' },
-  { id: 6, name: "Pedro Almeida", sales: 58000, target: 65000, position: 6, commission: 5800, trend: 'stable' },
-];
+import { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { buscarRankingVendedores, type RankingVendedor } from '@/backend/api/home';
 
 export function SalesRanking() {
+  const { toast } = useToast();
+  const [salesData, setSalesData] = useState<RankingVendedor[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    carregarRanking();
+  }, []);
+
+  const carregarRanking = async () => {
+    console.log('🔵 Frontend - Carregando ranking de vendedores');
+    setLoading(true);
+    
+    try {
+      const response = await buscarRankingVendedores();
+      
+      if (response.success && response.data) {
+        setSalesData(response.data);
+      } else {
+        toast({
+          title: "Erro ao carregar ranking",
+          description: response.error || "Não foi possível carregar o ranking de vendedores.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao carregar ranking:', error);
+      toast({
+        title: "Erro ao carregar ranking",
+        description: "Não foi possível carregar o ranking de vendedores.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   const getRankIcon = (position: number) => {
     switch (position) {
       case 1:
@@ -90,7 +107,10 @@ export function SalesRanking() {
           </Badge>
         </div>
 
-        <div className="space-y-3">
+        {loading ? (
+          <div className="text-center text-muted-foreground py-8">Carregando ranking...</div>
+        ) : (
+          <div className="space-y-3">
           {salesData.map((person) => {
             const progressPercentage = (person.sales / person.target) * 100;
             const isTopThree = person.position <= 3;
@@ -147,7 +167,8 @@ export function SalesRanking() {
               </div>
             );
           })}
-        </div>
+          </div>
+        )}
       </div>
     </Card>
   );

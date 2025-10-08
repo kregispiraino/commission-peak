@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Calendar, Clock } from 'lucide-react';
+import { calcularTempoRestanteMes } from '@/backend/api/home';
 
 interface TimeLeft {
   days: number;
@@ -13,18 +14,17 @@ export function CountdownTimer() {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    const calculateTimeLeft = () => {
-      const now = new Date();
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-      const difference = endOfMonth.getTime() - now.getTime();
-
-      if (difference > 0) {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-        setTimeLeft({ days, hours, minutes, seconds });
+    const calculateTimeLeft = async () => {
+      console.log('🔵 Frontend - Calculando tempo restante do mês');
+      
+      try {
+        const response = await calcularTempoRestanteMes();
+        
+        if (response.success && response.data) {
+          setTimeLeft(response.data);
+        }
+      } catch (error) {
+        console.error('Erro ao calcular tempo restante:', error);
       }
     };
 
