@@ -26,41 +26,31 @@ import { useIdAscora } from '@/hooks/useCadastros';
 
 // Mock data
 const mockVendedores = [
-  'Ana Silva', 'Carlos Santos', 'Maria Costa', 'João Oliveira', 'Luiza Ferreira', 'Pedro Almeida'
+  { id: '1', label: 'Ana Silva' },
+  { id: '2', label: 'Carlos Santos' },
+  { id: '3', label: 'Maria Costa' },
+  { id: '4', label: 'João Oliveira' },
+  { id: '5', label: 'Luiza Ferreira' },
+  { id: '6', label: 'Pedro Almeida' }
 ];
 
 const mockClientes = [
-  { id: '1', label: 'Tech Corp' },
-  { id: '2', label: 'Digital Solutions' },
-  { id: '3', label: 'InnovaWeb' },
-  { id: '4', label: 'Smart Systems' },
-  { id: '5', label: 'Cloud Services' },
-  { id: '6', label: 'Data Analytics' },
-  { id: '7', label: 'Web Masters' },
-  { id: '8', label: 'Mobile First' },
-  { id: '9', label: 'Cyber Security' },
-  { id: '10', label: 'AI Labs' }
+  'Tech Corp', 'Digital Solutions', 'InnovaWeb', 'Smart Systems', 'Cloud Services',
+  'Data Analytics', 'Web Masters', 'Mobile First', 'Cyber Security', 'AI Labs'
 ];
 
 const mockProdutos = [
-  { id: '1', label: 'Software License' },
-  { id: '2', label: 'Consultoria' },
-  { id: '3', label: 'Desenvolvimento Web' },
-  { id: '4', label: 'Suporte Técnico' },
-  { id: '5', label: 'Treinamento' },
-  { id: '6', label: 'Hospedagem' },
-  { id: '7', label: 'Design Gráfico' },
-  { id: '8', label: 'Marketing Digital' },
-  { id: '9', label: 'SEO' },
-  { id: '10', label: 'Analytics' }
+  'Software License', 'Consultoria', 'Desenvolvimento Web', 'Suporte Técnico',
+  'Treinamento', 'Hospedagem', 'Design Gráfico', 'Marketing Digital', 'SEO', 'Analytics'
 ];
 
 export default function Lancamento() {
   const { toast } = useToast();
   const { data: idAscora } = useIdAscora();
   const [date, setDate] = useState<Date>(new Date());
-  const [openVendedor, setOpenVendedor] = useState(false);
   const [vendedor, setVendedor] = useState("");
+  const [openCliente, setOpenCliente] = useState(false);
+  const [openProduto, setOpenProduto] = useState(false);
   const [cliente, setCliente] = useState("");
   const [produto, setProduto] = useState("");
   const [valor, setValor] = useState("");
@@ -286,51 +276,16 @@ export default function Lancamento() {
             <div className="space-y-3">
               <div className="space-y-2">
                 <Label htmlFor="vendedor">Vendedor</Label>
-                <Popover open={openVendedor} onOpenChange={setOpenVendedor}>
-                  <PopoverTrigger asChild>
-                    <div className="relative">
-                      <Input
-                        value={vendedor}
-                        onChange={(e) => {
-                          setVendedor(e.target.value);
-                          setOpenVendedor(true);
-                        }}
-                        placeholder="Digite ou selecione o vendedor"
-                        className="pr-10"
-                      />
-                    </div>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[400px] p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Buscar vendedor..." value={vendedor} onValueChange={setVendedor} />
-                      <CommandList>
-                        <CommandEmpty>Nenhum vendedor encontrado.</CommandEmpty>
-                        <CommandGroup heading="Vendedores Cadastrados">
-                          {mockVendedores
-                            .filter((v) => v.toLowerCase().includes(vendedor.toLowerCase()))
-                            .map((vendedorItem) => (
-                              <CommandItem
-                                key={vendedorItem}
-                                value={vendedorItem}
-                                onSelect={(currentValue) => {
-                                  setVendedor(currentValue);
-                                  setOpenVendedor(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    vendedor.toLowerCase() === vendedorItem.toLowerCase() ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {vendedorItem}
-                              </CommandItem>
-                            ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <SearchableSelect
+                  value={vendedor}
+                  onValueChange={(value) => {
+                    const vendedorSelecionado = mockVendedores.find(v => v.id === value);
+                    setVendedor(vendedorSelecionado?.label || '');
+                  }}
+                  placeholder="Selecione o vendedor"
+                  items={mockVendedores}
+                  searchPlaceholder="Buscar vendedor..."
+                />
               </div>
 
               <div className="space-y-2">
@@ -387,30 +342,104 @@ export default function Lancamento() {
 
               <div className="space-y-2">
                 <Label htmlFor="cliente">Cliente</Label>
-                <SearchableSelect
-                  value={cliente}
-                  onValueChange={(value) => {
-                    const clienteSelecionado = mockClientes.find(c => c.id === value);
-                    setCliente(clienteSelecionado?.label || '');
-                  }}
-                  placeholder="Selecione o cliente"
-                  items={mockClientes}
-                  searchPlaceholder="Buscar cliente..."
-                />
+                <Popover open={openCliente} onOpenChange={setOpenCliente}>
+                  <PopoverTrigger asChild>
+                    <div className="relative">
+                      <Input
+                        value={cliente}
+                        onChange={(e) => {
+                          setCliente(e.target.value);
+                          setOpenCliente(true);
+                        }}
+                        placeholder="Digite ou selecione o cliente"
+                        className="pr-10"
+                      />
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0 bg-background z-50" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar cliente..." value={cliente} onValueChange={setCliente} />
+                      <CommandList>
+                        <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+                        <CommandGroup heading="Clientes Cadastrados">
+                          <ScrollArea className="h-32">
+                            {mockClientes
+                              .filter((c) => c.toLowerCase().includes(cliente.toLowerCase()))
+                              .map((clienteItem) => (
+                                <CommandItem
+                                  key={clienteItem}
+                                  value={clienteItem}
+                                  onSelect={(currentValue) => {
+                                    setCliente(currentValue);
+                                    setOpenCliente(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      cliente.toLowerCase() === clienteItem.toLowerCase() ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {clienteItem}
+                                </CommandItem>
+                              ))}
+                          </ScrollArea>
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="produto">Produto/Serviço</Label>
-                <SearchableSelect
-                  value={produto}
-                  onValueChange={(value) => {
-                    const produtoSelecionado = mockProdutos.find(p => p.id === value);
-                    setProduto(produtoSelecionado?.label || '');
-                  }}
-                  placeholder="Selecione o produto/serviço"
-                  items={mockProdutos}
-                  searchPlaceholder="Buscar produto..."
-                />
+                <Popover open={openProduto} onOpenChange={setOpenProduto}>
+                  <PopoverTrigger asChild>
+                    <div className="relative">
+                      <Input
+                        value={produto}
+                        onChange={(e) => {
+                          setProduto(e.target.value);
+                          setOpenProduto(true);
+                        }}
+                        placeholder="Digite ou selecione o produto"
+                        className="pr-10"
+                      />
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0 bg-background z-50" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar produto..." value={produto} onValueChange={setProduto} />
+                      <CommandList>
+                        <CommandEmpty>Nenhum produto encontrado.</CommandEmpty>
+                        <CommandGroup heading="Produtos Cadastrados">
+                          <ScrollArea className="h-32">
+                            {mockProdutos
+                              .filter((p) => p.toLowerCase().includes(produto.toLowerCase()))
+                              .map((produtoItem) => (
+                                <CommandItem
+                                  key={produtoItem}
+                                  value={produtoItem}
+                                  onSelect={(currentValue) => {
+                                    setProduto(currentValue);
+                                    setOpenProduto(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      produto.toLowerCase() === produtoItem.toLowerCase() ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {produtoItem}
+                                </CommandItem>
+                              ))}
+                          </ScrollArea>
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 
