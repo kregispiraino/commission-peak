@@ -1,6 +1,6 @@
 # 📂 Estrutura do Projeto
 
-Este projeto utiliza **Lovable Cloud** (Supabase) como backend completo, com autenticação, banco de dados e lógica de negócio totalmente implementados.
+Este projeto está em modo Somente Frontend (mock). As APIs em src/backend/api simulam o backend; não há conexão real ativa. O design e a UI permanecem idênticos.
 
 ## 🏗️ Arquitetura
 
@@ -47,13 +47,13 @@ projeto/
 - Interface do usuário com React + TypeScript
 - Formulários e validações
 - React Query para gerenciamento de estado e cache
-- Integração com Lovable Cloud via Supabase client
+- Integração interna via APIs mock em src/backend/api
 
-### Backend (Lovable Cloud)
-- Banco de dados PostgreSQL com RLS (Row Level Security)
-- Autenticação real com Supabase Auth
-- Triggers e funções para lógica de negócio
-- APIs em `src/backend/api` fazem interface com o banco
+### Backend (Mock/Simulado)
+- Sem conexão real (somente funções mock)
+- Dados não são persistidos
+- Substitua as funções em `src/backend/api` pelos seus endpoints MySQL
+- Mantém a mesma interface para facilitar a migração
 
 ## 📡 Como Funciona
 
@@ -65,9 +65,9 @@ projeto/
          ↓
 [Usuário faz cadastro/login]
          ↓
-[Supabase Auth valida credenciais]
+[Login mock valida credenciais (src/backend/api/index.ts)]
          ↓
-[Session criada automaticamente]
+[Sessão salva em localStorage]
          ↓
 [ProtectedRoute verifica autenticação]
          ↓
@@ -80,15 +80,12 @@ projeto/
          ↓
 [Frontend valida dados]
          ↓
-[Chama API em src/backend/api]
-         ↓
-[API interage com Supabase]
-         ↓
-[RLS policies verificam permissões]
-         ↓
-[Triggers executam lógica de negócio]
-         ↓
-[Dados salvos/atualizados no banco]
+[Chama API em src/backend/api (mock)]
+          ↓
+[Seu backend (quando integrar) valida e processa]
+          ↓
+[Dados persistidos no seu MySQL]
+          ↓
          ↓
 [Frontend recebe resposta]
          ↓
@@ -107,14 +104,11 @@ projeto/
 - Sistema de ranking de vendas
 - Gerenciamento de comissões e metas
 
-✅ **Backend (Lovable Cloud)**
-- Autenticação completa com Supabase Auth
-- Banco de dados PostgreSQL estruturado
-- RLS policies para segurança de dados
-- Triggers automáticos para cálculos
-- Sistema de roles (master, admin, vendedor)
-- Soft delete em todos os registros
-- Isolamento de dados por `id_ascora`
+✅ **Backend Simulado (Mock)**
+- Autenticação simulada (login/logout em src/backend/api/index.ts)
+- Sem persistência real de dados
+- Pronto para substituir por seus endpoints MySQL mantendo a mesma interface
+- Exemplo de ponto único para SELECTs: use `listarEmpresas`, `listarEquipes`, `listarUsuarios`, etc.
 
 ✅ **Módulos Implementados**
 - Usuários (com níveis de acesso)
