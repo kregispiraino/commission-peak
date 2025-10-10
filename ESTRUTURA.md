@@ -34,10 +34,8 @@ projeto/
     │   ├── Resultado.tsx       # Resultados e análises
     │   └── ...
     ├── hooks/                  # React Hooks customizados
-    ├── integrations/
-    │   └── supabase/          # Integração Lovable Cloud
-    │       ├── client.ts       # Cliente Supabase (auto-gerado)
-    │       └── types.ts        # Tipos do banco (auto-gerado)
+    ├── lib/                    # Utilitários e helpers
+    │   └── mysql.ts            # (Para implementar) Conexão MySQL
     └── ...
 ```
 
@@ -165,27 +163,24 @@ Logs do frontend aparecem com o prefixo **🔵 Frontend**:
 - **React Router** - Navegação
 - **Zod** - Validação de schemas
 
-### Backend
-- **Lovable Cloud (Supabase)** - Plataforma completa
-- **PostgreSQL** - Banco de dados relacional
-- **Supabase Auth** - Autenticação
-- **Row Level Security** - Segurança de dados
-- **Triggers & Functions** - Lógica de negócio
+### Backend (A Implementar)
+- **MySQL** - Banco de dados a ser conectado
+- **Node.js/Express** - API REST (opcional)
+- **Autenticação customizada** - Sistema próprio de login
+- **Bcrypt** - Hash de senhas
 
-## 🔐 Segurança
+## 🔐 Segurança (A Implementar no MySQL)
 
 - Autenticação obrigatória em todas as rotas protegidas
-- RLS policies garantem isolamento de dados por `id_ascora`
-- Senha hasheada automaticamente pelo Supabase Auth
+- Isolamento de dados por `id_ascora` nas queries
+- Senhas hasheadas com bcrypt (implementar)
 - Roles diferentes para controle de acesso (master, admin, vendedor)
-- Soft delete para auditoria de dados
+- Soft delete para auditoria de dados (campo `ativo`)
 
-## 📊 Estrutura do Banco de Dados
+## 📊 Estrutura do Banco de Dados MySQL (Sugerida)
 
 **Tabelas Principais:**
-- `profiles` - Perfis de usuário
-- `user_roles` - Roles e permissões
-- `usuarios` - Vendedores e equipes
+- `usuarios` - Vendedores, admins e usuários
 - `empresas` - Empresas cadastradas
 - `equipes` - Equipes de vendas
 - `produtos` - Produtos/serviços
@@ -196,12 +191,27 @@ Logs do frontend aparecem com o prefixo **🔵 Frontend**:
 - `links` - Links personalizados
 - `premiacoes` - Premiações
 
-**Lógica Automática:**
-- Meta de empresa é distribuída automaticamente entre vendedores
-- Comissões são aplicadas automaticamente aos vendedores
-- Timestamps atualizados via trigger
-- Campo `id_ascora` preenchido automaticamente
+**Campos Importantes:**
+- `id_ascora` - Isolamento de dados por conta/cliente
+- `ativo` - Soft delete (1 = ativo, 0 = excluído)
+- `created_at`, `updated_at` - Timestamps
+
+**Lógica a Implementar:**
+- Distribuição automática de metas (triggers MySQL ou lógica backend)
+- Aplicação automática de comissões
+- Atualização de timestamps via triggers MySQL
 
 ---
 
-**Sistema completo com backend integrado via Lovable Cloud.**
+## 📥 Próximos Passos
+
+1. **Exportar projeto**: Baixe o ZIP do projeto
+2. **Abrir no VSCode**: Extraia e abra a pasta no seu editor
+3. **Seguir guia INTEGRACAO-MYSQL.md**: Implemente as conexões com seu banco
+4. **Instalar dependências**: `npm install` + `npm install mysql2 bcrypt`
+5. **Configurar MySQL**: Crie as tabelas e configure credenciais
+6. **Testar sistema**: Execute `npm run dev` e valide funcionalidades
+
+---
+
+**Sistema 100% visual pronto para integração com seu MySQL!**
